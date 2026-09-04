@@ -1,0 +1,6 @@
+@extends('auth.layout')
+@section('content')
+<p class="text-xs font-bold uppercase tracking-[0.2em] text-cyan-700">Start organised</p><h1 class="mt-3 text-3xl font-bold tracking-tight">Create your workspace</h1><p class="mt-3 text-sm leading-6 text-slate-500">Set up your organisation and invite your compliance rhythm into one place.</p>
+<form method="POST" action="{{ route('register.store') }}" class="mt-8 grid gap-5">@csrf<x-field name="organization_name" label="Organisation name" required autocomplete="organization" /><x-field name="name" label="Your full name" required autocomplete="name" /><x-field name="email" label="Work email" type="email" required autocomplete="email" /><x-field name="password" label="Password" type="password" hint="At least 8 characters." required autocomplete="new-password" /><x-field name="password_confirmation" label="Confirm password" type="password" required autocomplete="new-password" /><button type="submit" class="button-primary mt-2 w-full">Create workspace</button></form>
+<p class="mt-8 text-center text-sm text-slate-500">Already have an account? <a href="{{ route('login') }}" class="font-bold text-cyan-800 hover:underline">Sign in</a></p>
+@endsection

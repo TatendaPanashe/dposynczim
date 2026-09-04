@@ -1,0 +1,3 @@
+@props(['label', 'tone' => 'slate'])
+@php($tones = ['slate' => 'bg-slate-100 text-slate-700', 'green' => 'bg-emerald-100 text-emerald-800', 'amber' => 'bg-amber-100 text-amber-800', 'red' => 'bg-rose-100 text-rose-800', 'cyan' => 'bg-cyan-100 text-cyan-800'])
+<span {{ $attributes->merge(['class' => 'inline-flex items-center gap-1.5 px-2.5 py-1 text-[11px] font-bold uppercase tracking-wide '.$tones[$tone]]) }}><span class="size-1.5 rounded-full bg-current"></span>{{ $label }}</span>

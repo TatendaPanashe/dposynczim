@@ -1,0 +1,50 @@
+@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap');
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@theme {
+    --font-sans: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+    --font-mono: 'DM Mono', ui-monospace, monospace;
+}
+
+@layer base {
+    body {
+        font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+    }
+}
+
+@layer components {
+    .nav-link {
+        @apply flex items-center gap-3 px-3 py-2.5 text-sm font-semibold text-slate-400 transition-colors hover:bg-slate-800 hover:text-white;
+    }
+
+    .nav-link span {
+        @apply grid size-5 place-items-center text-xs text-slate-500;
+    }
+
+    .nav-link-active {
+        @apply bg-cyan-300 text-[#0e1b23] hover:bg-cyan-200 hover:text-[#0e1b23];
+    }
+
+    .nav-link-active span {
+        @apply text-[#0e1b23];
+    }
+
+    .form-control {
+        @apply w-full border border-slate-300 bg-white px-3.5 py-3 text-sm text-slate-900 outline-none transition-colors placeholder:text-slate-400 focus:border-cyan-600 focus:ring-2 focus:ring-cyan-100;
+    }
+
+    .button-primary {
+        @apply inline-flex items-center justify-center gap-2 bg-[#0e1b23] px-4 py-3 text-sm font-bold text-white transition-colors hover:bg-cyan-800;
+    }
+
+    .button-secondary {
+        @apply inline-flex items-center justify-center gap-2 border border-slate-300 bg-white px-4 py-3 text-sm font-bold text-slate-800 transition-colors hover:border-slate-500;
+    }
+
+    .surface {
+        @apply border border-slate-200 bg-white;
+    }
+}

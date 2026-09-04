@@ -1,0 +1,6 @@
+@extends('auth.layout')
+@section('content')
+<p class="text-xs font-bold uppercase tracking-[0.2em] text-cyan-700">Welcome back</p><h1 class="mt-3 text-3xl font-bold tracking-tight">Sign in to Protego</h1><p class="mt-3 text-sm leading-6 text-slate-500">Your organisation's compliance workspace is waiting.</p>
+<form method="POST" action="{{ route('login.store') }}" class="mt-8 grid gap-5">@csrf<x-field name="email" label="Work email" type="email" required autocomplete="email" /><x-field name="password" label="Password" type="password" required autocomplete="current-password" /><label class="flex items-center gap-2 text-sm text-slate-600"><input type="checkbox" name="remember" value="1" class="size-4 accent-cyan-700"> Remember me</label><button type="submit" class="button-primary mt-2 w-full">Sign in</button></form>
+<p class="mt-8 text-center text-sm text-slate-500">New to Protego? <a href="{{ route('register') }}" class="font-bold text-cyan-800 hover:underline">Create an account</a></p>
+@endsection
