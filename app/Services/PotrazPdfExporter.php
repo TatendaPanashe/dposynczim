@@ -40,23 +40,23 @@ final class PotrazPdfExporter
                 if ($page === 1) {
                     $this->text($pdf, $form->controller_name ?? $form->organization?->name ?? '', 112, 120, 7);
                     $this->text($pdf, $form->controller_license_number ?? '', 112, 131, 7);
-                    $this->text($pdf, $form->controller_physical_address ?? '', 112, 141, 7, 88);
-                    $this->text($pdf, $form->controller_postal_address ?? '', 112, 151, 7, 88);
-                    $this->text($pdf, $form->controller_telephone ?? '', 82, 161, 7);
-                    $this->text($pdf, $form->controller_fax ?? '', 165, 161, 7);
-                    $this->text($pdf, $form->controller_email ?? '', 112, 170, 7, 88);
+                    $this->text($pdf, $form->controller_physical_address ?? '', 112, 136, 7, 88);
+                    $this->text($pdf, $form->controller_postal_address ?? '', 112, 146, 7, 88);
+                    $this->text($pdf, $form->controller_telephone ?? '', 82, 156, 7);
+                    $this->text($pdf, $form->controller_fax ?? '', 165, 156, 7);
+                    $this->text($pdf, $form->controller_email ?? '', 112, 165, 7, 88);
                     $this->text($pdf, $form->business_scope ?? '', 112, 179, 7, 88);
                     $this->text($pdf, $form->full_name, 113, 193, 7);
                     $this->text($pdf, $form->dpo_registration_number ?? '', 105, 204, 7);
                     $this->text($pdf, $form->official_email, 151, 213, 7);
-                    $this->text($pdf, $form->official_phone, 60, 222, 7);
-                    $this->text($pdf, $form->dpo_mobile, 60, 231, 7);
+                    $this->text($pdf, $form->official_phone, 60, 217, 7);
+                    $this->text($pdf, $form->dpo_mobile, 60, 226, 7);
 
                     return;
                 }
 
                 $this->text($pdf, $form->dpo_address ?? '', 32, 44, 7, 155);
-                $this->text($pdf, implode('; ', $form->qualifications ?? []), 32, 88, 7, 155);
+                $this->text($pdf, implode('; ', $form->qualifications ?? []), 32, 86, 7, 155);
             },
         );
     }
