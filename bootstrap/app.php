@@ -14,6 +14,10 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo(fn (): string => route('login', absolute: false));
         $middleware->redirectUsersTo(fn (): string => route('compliance.dashboard', absolute: false));
+        $middleware->validateCsrfTokens(except: [
+            'compliance/payments/*/result',
+            'compliance/payments/*/return',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         $exceptions->shouldRenderJsonWhen(

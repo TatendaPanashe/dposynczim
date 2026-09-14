@@ -35,4 +35,16 @@ return [
         ],
     ],
 
+    'pesepay' => [
+        'integration_key' => env('PESEPAY_INTEGRATION_KEY'),
+        'encryption_key' => env('PESEPAY_ENCRYPTION_KEY'),
+        'make_payment_url' => env('PESEPAY_MAKE_PAYMENT_URL', 'https://api.pesepay.com/api/payments-engine/v2/payments/make-payment'),
+        'check_payment_url' => env('PESEPAY_CHECK_PAYMENT_URL', 'https://api.pesepay.com/api/payments-engine/v1/payments/check-payment'),
+        'result_url' => env('PESE_PAY_RESULT_URL'),
+        'return_url' => env('PESE_PAY_RETURN_URL'),
+        'currency' => env('PESE_PAY_CURRENCY', 'USD'),
+        'sandbox' => env('PESE_PAY_SANDBOX', false),
+        'use_sdk' => env('PESE_PAY_USE_SDK', true),
+    ],
+
 ];
