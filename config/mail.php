@@ -115,4 +115,6 @@ return [
         'name' => env('MAIL_FROM_NAME', env('APP_NAME', 'Laravel')),
     ],
 
+    'project_brief_to' => env('PROJECT_BRIEF_TO', 'info@kodomotech.org'),
+
 ];

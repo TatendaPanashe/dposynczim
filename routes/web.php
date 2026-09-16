@@ -9,10 +9,14 @@ use App\Http\Controllers\FormDp2Controller;
 use App\Http\Controllers\OrganizationController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\PrivacyPolicyController;
+use App\Http\Controllers\ProjectBriefController;
 use App\Http\Controllers\RopaRecordController;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
+Route::view('/services', 'services')->name('services');
+Route::get('/start-project', [ProjectBriefController::class, 'create'])->name('project-brief.create');
+Route::post('/start-project', [ProjectBriefController::class, 'store'])->middleware('throttle:5,1')->name('project-brief.store');
 
 Route::middleware('guest')->group(function (): void {
     Route::get('/login', [AuthController::class, 'showLogin'])->name('login');
