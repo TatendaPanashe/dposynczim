@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Organization;
 use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\View\View;
@@ -12,12 +13,14 @@ class PrivacyPolicyController extends Controller
     {
         return view('compliance.privacy-policies.create', [
             'organization' => $request->user()->activeOrganization(),
+            'organizations' => $this->organizationsFor($request->user()),
         ]);
     }
 
     public function download(Request $request): Response
     {
         $validated = $request->validate([
+            'organization_id' => ['nullable', 'integer'],
             'policy_type' => ['required', 'in:employee,customer,website'],
             'contact_email' => ['required', 'email', 'max:255'],
             'contact_address' => ['required', 'string', 'max:2000'],
@@ -26,7 +29,10 @@ class PrivacyPolicyController extends Controller
             'retention_summary' => ['required', 'string', 'max:3000'],
         ]);
 
-        $organization = $request->user()->activeOrganization();
+        $organizationId = (int) ($validated['organization_id'] ?? $request->user()->activeOrganization()?->getKey());
+        $organization = $this->organizationsFor($request->user())->firstWhere('id', $organizationId);
+
+        abort_if($organization === null, 403);
 
         return response(view('exports.privacy-policy', [
             'organization' => $organization,
@@ -35,5 +41,12 @@ class PrivacyPolicyController extends Controller
             'Content-Type' => 'text/html; charset=UTF-8',
             'Content-Disposition' => 'attachment; filename="'.strtolower($validated['policy_type']).'-privacy-policy.html"',
         ]);
+    }
+
+    private function organizationsFor($user)
+    {
+        return $user->isAdmin()
+            ? Organization::orderBy('name')->get()
+            : $user->organizations()->orderBy('name')->get();
     }
 }

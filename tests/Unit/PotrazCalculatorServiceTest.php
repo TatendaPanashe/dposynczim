@@ -36,8 +36,8 @@ class PotrazCalculatorServiceTest extends TestCase
     public static function tierBoundaries(): array
     {
         return [
-            'tier one minimum' => [50, 'Tier 1', 50.0, 0.0, 50.0],
-            'tier one maximum' => [1_000, 'Tier 1', 50.0, 0.0, 50.0],
+            'tier one minimum' => [50, 'Tier 1', 50.0, 30.0, 80.0],
+            'tier one maximum' => [1_000, 'Tier 1', 50.0, 30.0, 80.0],
             'tier two minimum' => [1_001, 'Tier 2', 300.0, 30.0, 330.0],
             'tier two maximum' => [100_000, 'Tier 2', 300.0, 30.0, 330.0],
             'tier three minimum' => [100_001, 'Tier 3', 500.0, 30.0, 530.0],

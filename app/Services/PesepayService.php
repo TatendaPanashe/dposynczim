@@ -19,8 +19,7 @@ final class PesepayService
         string $resultUrl,
         string $paymentMethodCode,
         ?string $customerPhoneNumber = null,
-    ): array
-    {
+    ): array {
         $integrationKey = config('services.pesepay.integration_key');
         $encryptionKey = config('services.pesepay.encryption_key');
         $endpoint = config('services.pesepay.make_payment_url');
@@ -39,7 +38,7 @@ final class PesepayService
                 'currencyCode' => $payment->currency,
             ],
             'merchantReference' => $payment->merchant_reference,
-            'reasonForPayment' => 'Protego monthly DP1/DP2 download access',
+            'reasonForPayment' => 'DPOSync Zim monthly DP1/DP2 download access',
             'resultUrl' => $resultUrl,
             'returnUrl' => $returnUrl,
             'paymentMethodCode' => $paymentMethodCode,
@@ -168,7 +167,7 @@ final class PesepayService
             $transaction = $pesepay->createTransaction(
                 $payment->amount_cents / 100,
                 $this->config('currency', $payment->currency),
-                'Protego monthly DP1/DP2 download access',
+                'DPOSync Zim monthly DP1/DP2 download access',
                 $payment->merchant_reference,
             );
 

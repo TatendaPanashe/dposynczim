@@ -6,6 +6,7 @@ use App\Models\BreachIncident;
 use App\Models\FormDp1;
 use App\Models\FormDp2;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Storage;
 use RuntimeException;
 use setasign\Fpdi\Tcpdf\Fpdi;
 
@@ -18,16 +19,55 @@ final class PotrazPdfExporter
 
         return $this->overlay(
             'dp1-template.pdf',
-            function (Fpdi $pdf, int $page) use ($form, $entity): void {
-                if ($page !== 1) {
+            function (Fpdi $pdf, int $page) use ($form, $entity, $processing): void {
+                if ($page === 1) {
+                    $this->text($pdf, $entity['entity_name'] ?? '', 32, 105, 8);
+                    $this->text($pdf, $entity['registration_number'] ?? '', 12, 124, 8);
+                    $this->text($pdf, $form->tier, 151, 124, 8);
+                    $this->text($pdf, $entity['legal_structure'] ?? '', 42, 154, 7, 150);
+                    $this->text($pdf, $entity['business_sector'] ?? '', 45, 170, 8);
+                    $this->text($pdf, $entity['physical_address'] ?? '', 45, 177, 8, 145);
+                    $this->text($pdf, $entity['phone_number'] ?? '', 45, 191, 8);
+                    $this->text($pdf, $entity['email_address'] ?? '', 45, 198, 8);
+                    $this->text($pdf, $entity['website'] ?? '', 45, 205, 8);
+                    $this->text($pdf, $entity['dpo_name'] ?? '', 32, 222, 8);
+                    $this->text($pdf, $entity['dpo_phone'] ?? '', 45, 231, 8);
+                    $this->text($pdf, $entity['dpo_email'] ?? '', 45, 239, 8);
+                    $this->text($pdf, $entity['representative_name'] ?? '', 32, 260, 8);
+                    $this->text($pdf, $entity['representative_phone'] ?? '', 45, 269, 8);
+
                     return;
                 }
 
-                $this->text($pdf, $entity['entity_name'] ?? '', 32, 105, 8);
-                $this->text($pdf, $entity['registration_number'] ?? '', 12, 124, 8);
-                $this->text($pdf, $form->tier, 151, 124, 8);
-                $this->text($pdf, $entity['business_sector'] ?? '', 45, 170, 8);
-                $this->text($pdf, $entity['physical_address'] ?? '', 45, 177, 8);
+                if ($page === 2) {
+                    $this->text($pdf, $entity['representative_address'] ?? '', 28, 22, 8, 155);
+                    $this->text($pdf, $entity['representative_email'] ?? '', 28, 38, 8);
+                    $this->text($pdf, $entity['representative_website'] ?? '', 28, 48, 8);
+                    $this->text($pdf, $processing['data_subject_categories'] ?? '', 15, 112, 7, 34);
+                    $this->text($pdf, $processing['personal_data_types'] ?? '', 52, 112, 7, 34);
+                    $this->text($pdf, $processing['processing_purpose'] ?? '', 91, 112, 7, 34);
+                    $this->text($pdf, $processing['data_recipients'] ?? '', 128, 112, 7, 34);
+                    $this->text($pdf, $processing['legal_grounds'] ?? '', 165, 112, 7, 34);
+
+                    return;
+                }
+
+                if ($page === 3) {
+                    $this->text($pdf, $form->sensitive_data_details['details'] ?? '', 16, 85, 7, 174);
+                    $this->text($pdf, $form->processors['details'] ?? '', 16, 219, 7, 174);
+
+                    return;
+                }
+
+                if ($page === 4) {
+                    $this->text($pdf, $form->security_measures['risks'] ?? '', 16, 42, 7, 80);
+                    $this->text($pdf, $form->security_measures['details'] ?? '', 104, 42, 7, 88);
+                    $this->text($pdf, $form->cross_border_transfers['details'] ?? '', 16, 133, 7, 174);
+                    $this->text($pdf, $this->attachmentChecklist($form), 155, 174, 8, 35);
+                    $this->text($pdf, $entity['declarant_name'] ?? '', 35, 235, 8, 70);
+                    $this->text($pdf, $entity['declarant_position'] ?? '', 122, 235, 8, 70);
+                    $this->signature($pdf, $form, 35, 247, 38, 14);
+                }
             },
         );
     }
@@ -131,5 +171,38 @@ final class PotrazPdfExporter
             5,
             'T',
         );
+    }
+
+    private function attachmentChecklist(FormDp1 $form): string
+    {
+        $attachments = $form->attachments ?? [];
+
+        return collect([
+            'certificate_of_incorporation',
+            'cr6_cr14',
+            'tax_clearance',
+            'data_protection_policy',
+            'signature_file',
+        ])->map(fn (string $key): string => array_key_exists($key, $attachments) ? 'X' : '')
+            ->filter()
+            ->implode("\n");
+    }
+
+    private function signature(Fpdi $pdf, FormDp1 $form, float $x, float $y, float $width, float $height): void
+    {
+        $path = $form->attachments['signature_file'] ?? null;
+
+        if ($path === null || ! Storage::disk('private')->exists($path)) {
+            return;
+        }
+
+        $absolutePath = Storage::disk('private')->path($path);
+        $extension = strtolower(pathinfo($absolutePath, PATHINFO_EXTENSION));
+
+        if (! in_array($extension, ['jpg', 'jpeg', 'png'], true)) {
+            return;
+        }
+
+        $pdf->Image($absolutePath, $x, $y, $width, $height, strtoupper($extension === 'jpg' ? 'jpeg' : $extension));
     }
 }

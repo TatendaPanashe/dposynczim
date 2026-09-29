@@ -13,7 +13,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->redirectGuestsTo(fn (): string => route('login', absolute: false));
-        $middleware->redirectUsersTo(fn (): string => route('compliance.dashboard', absolute: false));
+        $middleware->redirectUsersTo(
+            fn (): string => auth()->user()?->needsDpoProfileSetup()
+                ? route('compliance.dpo-profile.edit', absolute: false)
+                : route('compliance.dashboard', absolute: false),
+        );
         $middleware->validateCsrfTokens(except: [
             'compliance/payments/*/result',
             'compliance/payments/*/return',

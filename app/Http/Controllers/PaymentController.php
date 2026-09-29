@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BreachIncident;
 use App\Models\FormDp1;
 use App\Models\FormDp2;
 use App\Models\MonthlyPayment;
@@ -33,6 +34,15 @@ class PaymentController extends Controller
         return $this->checkoutView($request, 'dp2', $formDp2->getKey());
     }
 
+    public function showDp3(Request $request, BreachIncident $breachIncident): View|RedirectResponse
+    {
+        if ($this->hasAccess($request)) {
+            return to_route('compliance.incidents.download', $breachIncident);
+        }
+
+        return $this->checkoutView($request, 'dp3', $breachIncident->getKey());
+    }
+
     public function showRopa(Request $request): View|RedirectResponse
     {
         if ($this->hasAccess($request)) {
@@ -45,7 +55,7 @@ class PaymentController extends Controller
     public function initiate(Request $request, PesepayService $pesepay): RedirectResponse
     {
         $validated = $request->validate([
-            'document_type' => ['required', 'in:dp1,dp2,ropa'],
+            'document_type' => ['required', 'in:dp1,dp2,dp3,ropa'],
             'document_id' => ['nullable', 'required_unless:document_type,ropa', 'integer'],
             'payment_method_code' => ['required', 'in:PZW211,PZW212'],
             'customer_phone_number' => ['nullable', 'required_if:payment_method_code,PZW211', 'string', 'max:30'],
@@ -110,7 +120,7 @@ class PaymentController extends Controller
         $this->pollPesepayStatus($payment->fresh(), $pesepay);
 
         if ($payment->fresh()->status === 'paid') {
-            return $this->redirectToDocument($payment)->with('success', 'Payment received. Your monthly DP1 and DP2 downloads are unlocked.');
+            return $this->redirectToDocument($payment)->with('success', 'Payment received. Your monthly document access is unlocked.');
         }
 
         return $this->redirectToPaymentPage($payment)
@@ -119,6 +129,10 @@ class PaymentController extends Controller
 
     private function hasAccess(Request $request): bool
     {
+        if ($request->user()->isAdmin()) {
+            return true;
+        }
+
         $organization = $request->user()->activeOrganization();
 
         if ($organization === null) {
@@ -207,6 +221,10 @@ class PaymentController extends Controller
             return to_route('compliance.ropa.download');
         }
 
+        if (($metadata['document_type'] ?? null) === 'dp3') {
+            return to_route('compliance.incidents.download', $metadata['document_id']);
+        }
+
         return to_route('compliance.dp2.download', $metadata['document_id']);
     }
 
@@ -220,6 +238,10 @@ class PaymentController extends Controller
 
         if (($metadata['document_type'] ?? null) === 'ropa') {
             return to_route('compliance.payments.ropa');
+        }
+
+        if (($metadata['document_type'] ?? null) === 'dp3') {
+            return to_route('compliance.payments.dp3', $metadata['document_id']);
         }
 
         return to_route('compliance.payments.dp2', $metadata['document_id']);

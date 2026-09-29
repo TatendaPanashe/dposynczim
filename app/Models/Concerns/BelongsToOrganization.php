@@ -11,6 +11,11 @@ trait BelongsToOrganization
     {
         static::addGlobalScope('organization', function (Builder $builder): void {
             $user = auth()->user();
+
+            if ($user?->isAdmin()) {
+                return;
+            }
+
             $organizationId = $user?->activeOrganization()?->getKey();
 
             if ($organizationId === null) {

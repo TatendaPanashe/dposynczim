@@ -13,7 +13,7 @@ class ProjectBriefTest extends TestCase
     {
         $this->get(route('project-brief.create'))
             ->assertOk()
-            ->assertSee('Tell us what you want to build.');
+            ->assertSee('Tell us what compliance workflow you need to manage.');
     }
 
     public function test_project_brief_can_be_sent_with_images(): void
@@ -24,7 +24,7 @@ class ProjectBriefTest extends TestCase
             'name' => 'Oliver Chimuka',
             'email' => 'oliver@example.com',
             'phone' => '+263 77 000 0000',
-            'organization' => 'Kodomo Client',
+            'organization' => 'DPOSync Client',
             'service' => 'software-development',
             'budget' => '$1,000 - $3,000',
             'timeline' => 'Next month',

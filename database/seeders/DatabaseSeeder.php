@@ -15,11 +15,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        User::updateOrCreate([
+            'email' => 'info@kodomotech.org',
+        ], [
+            'name' => 'DPOSync Zim Admin',
+            'password' => env('ADMIN_PASSWORD', 'Test123!'),
+            'is_admin' => true,
         ]);
     }
 }

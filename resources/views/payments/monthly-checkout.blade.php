@@ -1,11 +1,11 @@
 @extends('layouts.app')
 @section('content')
-<x-page-heading eyebrow="Monthly access" title="Unlock DP1 and DP2 downloads" description="One payment covers your workspace for the current calendar month." />
+<x-page-heading eyebrow="Monthly access" title="Unlock official document actions" description="One payment covers your workspace for the current calendar month." />
 <div class="surface grid gap-6 p-6 lg:p-8">
     <div class="grid gap-4 border-b border-slate-200 pb-6 md:grid-cols-[1fr_0.35fr] md:items-start">
         <div>
-            <p class="text-sm leading-6 text-slate-600">DP1 and DP2 official PDF downloads require a monthly access payment. Once paid, your workspace can download DP1 and DP2 forms for the rest of this month without paying again.</p>
-            <p class="mt-3 text-sm leading-6 text-slate-600">Payments are processed securely through Pesepay. Protego does not collect or store card or wallet credentials.</p>
+            <p class="text-sm leading-6 text-slate-600">DP1, DP2, and DP3 official PDF downloads and POTRAZ submissions require a monthly access payment. Once paid, your workspace can download and send forms for the rest of this month without paying again.</p>
+            <p class="mt-3 text-sm leading-6 text-slate-600">Payments are processed securely through Pesepay. DPOSync Zim does not collect or store card or wallet credentials.</p>
         </div>
         <div class="border border-slate-200 bg-slate-50 p-5">
             <p class="text-xs font-bold uppercase tracking-wide text-slate-500">Monthly access</p>

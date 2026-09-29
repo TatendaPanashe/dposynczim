@@ -12,6 +12,52 @@
     <div class="surface p-5"><div class="flex items-start justify-between"><span class="text-xs font-bold uppercase tracking-wide text-slate-500">DPO appointment</span><span class="text-emerald-700">◎</span></div><p class="mt-6 text-3xl font-bold tracking-tight">{{ $dpoStatus ? 'Active' : 'Missing' }}</p><p class="mt-1 text-xs text-slate-500">DP2 appointment status</p></div>
 </section>
 
+<section class="mt-8 grid gap-6 xl:grid-cols-[1.25fr_0.75fr]">
+    <div class="surface">
+        <div class="border-b border-slate-200 px-5 py-4">
+            <h2 class="font-bold">Organisation compliance status</h2>
+            <p class="mt-1 text-xs text-slate-500">{{ $activeOrganization?->name ?? 'No organisation selected' }} · Required evidence and operational readiness.</p>
+        </div>
+        <div class="divide-y divide-slate-100">
+            @foreach($complianceChecklist as $item)
+                <a href="{{ $item['href'] }}" class="grid gap-3 px-5 py-4 transition hover:bg-slate-50 md:grid-cols-[1fr_auto] md:items-center">
+                    <div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <p class="text-sm font-semibold text-slate-900">{{ $item['label'] }}</p>
+                            <x-status :label="$item['complete'] ? 'Ready' : 'Action needed'" :tone="$item['complete'] ? 'green' : 'amber'" />
+                            @isset($item['status'])
+                                <span class="text-xs font-semibold text-slate-500">{{ $item['status'] }}</span>
+                            @endisset
+                        </div>
+                        <p class="mt-1 text-sm leading-6 text-slate-500">{{ $item['description'] }}</p>
+                    </div>
+                    <span class="text-xs font-bold text-cyan-700">Open ↗</span>
+                </a>
+            @endforeach
+        </div>
+    </div>
+
+    <div class="surface p-5">
+        <p class="text-xs font-bold uppercase tracking-wide text-cyan-700">Compliance form statuses</p>
+        <div class="mt-5 grid gap-3">
+            @foreach([
+                'active' => ['Active', 'green'],
+                'approved' => ['Approved', 'green'],
+                'submitted' => ['Submitted', 'cyan'],
+                'draft' => ['Draft', 'amber'],
+                'needs_review' => ['Needs review', 'amber'],
+                'expired' => ['Expired', 'red'],
+            ] as $status => [$label, $tone])
+                <div class="flex items-center justify-between border border-slate-200 px-4 py-3">
+                    <x-status :label="$label" :tone="$tone" />
+                    <span class="text-lg font-bold">{{ $formStatusCounts->get($status, 0) }}</span>
+                </div>
+            @endforeach
+        </div>
+        <a href="{{ route('compliance.forms.index') }}" class="button-secondary mt-5 w-full">Manage forms</a>
+    </div>
+</section>
+
 <section class="mt-8 grid gap-6 xl:grid-cols-[1.35fr_0.65fr]">
     <div class="surface">
         <div class="flex items-center justify-between border-b border-slate-200 px-5 py-4"><div><h2 class="font-bold">Incident watch</h2><p class="mt-1 text-xs text-slate-500">The latest events needing a response.</p></div><a href="{{ route('compliance.incidents.index') }}" class="text-xs font-bold text-cyan-700 hover:text-cyan-900">View all ↗</a></div>

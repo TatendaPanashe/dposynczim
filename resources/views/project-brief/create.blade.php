@@ -3,23 +3,23 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Send Kodomo Technologies a detailed project brief with your requirements and reference images.">
-    <title>Start a Project · Kodomo Technologies</title>
+    <meta name="description" content="Send DPOSync Zim a structured compliance support request for DPO, SI, or organisation workflows.">
+    <title>Structured Request · DPOSync Zim</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-[#081114] text-white antialiased">
     <header class="border-b border-white/10 bg-[#081114]/88">
         <div class="mx-auto flex max-w-7xl items-center justify-between px-5 py-4 lg:px-8">
             <a href="{{ route('home') }}" class="inline-flex items-center gap-3">
-                <span class="grid size-10 place-items-center bg-[#b7ff4a] text-sm font-black text-[#081114]">KT</span>
+                <span class="grid size-10 place-items-center bg-[#b7ff4a] text-sm font-black text-[#081114]">DZ</span>
                 <span>
-                    <strong class="block text-sm tracking-wide">Kodomo Technologies</strong>
-                    <small class="block text-[11px] uppercase tracking-[0.18em] text-slate-400">Project brief</small>
+                    <strong class="block text-sm tracking-wide">DPOSync Zim</strong>
+                    <small class="block text-[11px] uppercase tracking-[0.18em] text-slate-400">Structured request</small>
                 </span>
             </a>
             <nav class="hidden items-center gap-6 text-sm font-bold text-slate-300 md:flex">
                 <a href="{{ route('home') }}" class="hover:text-white">Home</a>
-                <a href="{{ route('services') }}" class="hover:text-white">Services</a>
+                <a href="{{ route('services') }}" class="hover:text-white">How it works</a>
                 <a href="mailto:info@kodomotech.org" class="hover:text-white">info@kodomotech.org</a>
             </nav>
         </div>
@@ -28,9 +28,9 @@
     <main class="bg-[#f5f7f2] px-5 py-12 text-[#081114] lg:px-8 lg:py-16">
         <div class="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[0.7fr_1.3fr]">
             <section>
-                <p class="text-sm font-black uppercase tracking-[0.22em] text-[#497112]">Start a project</p>
-                <h1 class="mt-4 text-4xl font-black tracking-tight lg:text-5xl">Tell us what you want to build.</h1>
-                <p class="mt-5 text-base leading-7 text-slate-600">Share the goal, must-have features, timeline, budget range, and any reference images. Your submission is emailed directly to the Kodomo Technologies team.</p>
+                <p class="text-sm font-black uppercase tracking-[0.22em] text-[#497112]">Structured request</p>
+                <h1 class="mt-4 text-4xl font-black tracking-tight lg:text-5xl">Tell us what compliance workflow you need to manage.</h1>
+                <p class="mt-5 text-base leading-7 text-slate-600">Share your DPO status, SI role, organisation count, current records, priority forms, timeline, and any reference material. Your request helps us guide the right DPOSync Zim setup.</p>
             </section>
 
             <section class="border border-[#d7dfcd] bg-white p-6 shadow-sm lg:p-8">
@@ -71,11 +71,11 @@
                             <span class="text-sm font-black">Service</span>
                             <select name="service" required class="border border-slate-300 px-4 py-3 text-sm outline-none focus:border-[#497112]">
                                 <option value="">Select one</option>
-                                <option value="data-protection" @selected(old('service') === 'data-protection')>Data protection as a service</option>
-                                <option value="ai-automation" @selected(old('service') === 'ai-automation')>AI automation</option>
-                                <option value="software-development" @selected(old('service') === 'software-development')>Software development</option>
-                                <option value="networking" @selected(old('service') === 'networking')>Networking</option>
-                                <option value="mixed" @selected(old('service') === 'mixed')>A mix of services</option>
+                                <option value="data-protection" @selected(old('service') === 'data-protection')>DPO compliance workspace</option>
+                                <option value="ai-automation" @selected(old('service') === 'ai-automation')>Policy or record automation</option>
+                                <option value="software-development" @selected(old('service') === 'software-development')>Platform integration</option>
+                                <option value="networking" @selected(old('service') === 'networking')>SI client rollout</option>
+                                <option value="mixed" @selected(old('service') === 'mixed')>A mix of support</option>
                             </select>
                             @error('service') <span class="text-sm font-bold text-red-700">{{ $message }}</span> @enderror
                         </label>
@@ -92,13 +92,13 @@
                     </div>
 
                     <label class="grid gap-2">
-                        <span class="text-sm font-black">What do you want built?</span>
+                        <span class="text-sm font-black">What do you need DPOSync Zim to help with?</span>
                         <textarea name="project_goal" rows="5" required class="border border-slate-300 px-4 py-3 text-sm leading-6 outline-none focus:border-[#497112]">{{ old('project_goal') }}</textarea>
                         @error('project_goal') <span class="text-sm font-bold text-red-700">{{ $message }}</span> @enderror
                     </label>
 
                     <label class="grid gap-2">
-                        <span class="text-sm font-black">Features, pages, automations, or integrations</span>
+                        <span class="text-sm font-black">Forms, clients, records, integrations, or SI rollout details</span>
                         <textarea name="features" rows="5" class="border border-slate-300 px-4 py-3 text-sm leading-6 outline-none focus:border-[#497112]">{{ old('features') }}</textarea>
                         @error('features') <span class="text-sm font-bold text-red-700">{{ $message }}</span> @enderror
                     </label>
@@ -117,7 +117,7 @@
                         @error('images.*') <span class="text-sm font-bold text-red-700">{{ $message }}</span> @enderror
                     </label>
 
-                    <button class="bg-[#081114] px-6 py-4 text-sm font-black text-white transition hover:bg-[#497112]">Send project brief</button>
+                    <button class="bg-[#081114] px-6 py-4 text-sm font-black text-white transition hover:bg-[#497112]">Send request</button>
                 </form>
             </section>
         </div>

@@ -9,8 +9,8 @@ final class PotrazCalculatorService
     /**
      * Calculate the DP1 licence tier under the S.I. 155 of 2024 fee schedule.
      *
-     * Tier 1 starts at 50 data subjects. Tiers 2-4 include the additional
-     * $30 application fee specified for those tiers.
+     * Tier 1 starts at 50 data subjects. Every tier includes the $30
+     * application fee.
      *
      * @return array{tier: string, registration_fee: float, application_fee: float, total_cost: float}
      */
@@ -21,7 +21,7 @@ final class PotrazCalculatorService
         }
 
         return match (true) {
-            $dataSubjectCount <= 1_000 => $this->fees('Tier 1', 50.0, 0.0),
+            $dataSubjectCount <= 1_000 => $this->fees('Tier 1', 50.0, 30.0),
             $dataSubjectCount <= 100_000 => $this->fees('Tier 2', 300.0, 30.0),
             $dataSubjectCount <= 500_000 => $this->fees('Tier 3', 500.0, 30.0),
             default => $this->fees('Tier 4', 2_500.0, 30.0),

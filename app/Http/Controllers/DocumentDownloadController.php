@@ -46,8 +46,12 @@ class DocumentDownloadController extends Controller
         ]);
     }
 
-    public function incident(BreachIncident $breachIncident, PotrazPdfExporter $exporter): Response
+    public function incident(Request $request, BreachIncident $breachIncident, PotrazPdfExporter $exporter): Response
     {
+        if (! $this->hasMonthlyAccess($request)) {
+            return to_route('compliance.payments.dp3', $breachIncident);
+        }
+
         return $this->pdfDownload($exporter->dp3($breachIncident), $breachIncident->reference.'.pdf');
     }
 
@@ -61,6 +65,10 @@ class DocumentDownloadController extends Controller
 
     private function hasMonthlyAccess(Request $request): bool
     {
+        if ($request->user()->isAdmin()) {
+            return true;
+        }
+
         $organization = $request->user()->activeOrganization();
 
         if ($organization === null) {

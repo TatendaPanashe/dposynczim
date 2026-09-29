@@ -5,9 +5,13 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-#[Fillable(['name', 'registration_number', 'slug'])]
+#[Fillable([
+    'name', 'registration_number', 'slug', 'business_sector', 'legal_structure',
+    'physical_address', 'postal_address', 'telephone', 'fax', 'email', 'business_scope',
+])]
 class Organization extends Model
 {
     public function users(): HasMany
@@ -23,5 +27,15 @@ class Organization extends Model
     public function dp1s(): HasMany
     {
         return $this->hasMany(FormDp1::class);
+    }
+
+    public function activeDpoAppointment(): HasOne
+    {
+        return $this->hasOne(FormDp2::class)->where('status', 'active')->latestOfMany();
+    }
+
+    public function complianceForms(): HasMany
+    {
+        return $this->hasMany(ComplianceForm::class);
     }
 }

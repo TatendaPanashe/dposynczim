@@ -3,23 +3,104 @@
 namespace App\Http\Controllers;
 
 use App\Models\BreachIncident;
+use App\Models\ComplianceForm;
 use App\Models\FormDp1;
 use App\Models\FormDp2;
 use App\Models\RopaRecord;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
 
 class DashboardController extends Controller
 {
-    public function __invoke(): View
+    public function __invoke(): View|RedirectResponse
     {
+        if (auth()->user()?->needsDpoProfileSetup()) {
+            return to_route('compliance.dpo-profile.edit');
+        }
+
+        $activeOrganization = auth()->user()?->activeOrganization();
+        $latestDp1 = FormDp1::latest()->first();
+        $activeDp2 = FormDp2::where('status', 'active')->latest()->first();
+        $ropaRecords = RopaRecord::count();
+        $consentForms = ComplianceForm::where('type', 'consent')->get();
+        $crossBorderForms = ComplianceForm::where('type', 'cross_border_authorisation')->get();
+        $generalForms = ComplianceForm::where('type', 'general')->get();
+        $activeIncidents = BreachIncident::whereIn('status', ['open', 'investigating'])->count();
+
         return view('compliance.dashboard', [
             'activeOrganization' => auth()->user()?->activeOrganization(),
             'dp1Drafts' => FormDp1::where('status', 'draft')->count(),
-            'activeIncidents' => BreachIncident::whereIn('status', ['open', 'investigating'])->count(),
-            'ropaRecords' => RopaRecord::count(),
-            'dpoStatus' => FormDp2::where('status', 'active')->exists(),
+            'activeIncidents' => $activeIncidents,
+            'ropaRecords' => $ropaRecords,
+            'dpoStatus' => $activeDp2 !== null,
             'recentIncidents' => BreachIncident::latest('detected_at')->limit(4)->get(),
             'renewal' => FormDp1::whereNotNull('renewal_due_at')->latest('renewal_due_at')->first(),
+            'formStatusCounts' => ComplianceForm::get()
+                ->groupBy(fn (ComplianceForm $form): string => $form->computedStatus())
+                ->map->count(),
+            'complianceChecklist' => [
+                [
+                    'label' => 'Organisation profile',
+                    'description' => 'Core organisation details are captured for filings and evidence.',
+                    'complete' => $activeOrganization !== null && filled($activeOrganization->name) && filled($activeOrganization->business_sector) && filled($activeOrganization->physical_address),
+                    'href' => route('compliance.organizations.index'),
+                ],
+                [
+                    'label' => 'DPO profile',
+                    'description' => 'Officer contact, qualifications, certification, and reporting line are ready.',
+                    'complete' => auth()->user()?->hasCompletedDpoProfile() ?? false,
+                    'href' => route('compliance.dpo-profile.edit'),
+                ],
+                [
+                    'label' => 'DP1 registration',
+                    'description' => 'Data controller registration workflow is drafted or submitted.',
+                    'complete' => $latestDp1 !== null,
+                    'status' => $latestDp1?->status,
+                    'href' => route('compliance.dp1.create'),
+                ],
+                [
+                    'label' => 'DP2 appointment',
+                    'description' => 'A DPO appointment record exists for this organisation.',
+                    'complete' => $activeDp2 !== null,
+                    'status' => $activeDp2?->status,
+                    'href' => route('compliance.dp2.index'),
+                ],
+                [
+                    'label' => 'ROPA register',
+                    'description' => 'Processing activities are recorded and exportable.',
+                    'complete' => $ropaRecords > 0,
+                    'status' => $ropaRecords.' recorded',
+                    'href' => route('compliance.ropa.index'),
+                ],
+                [
+                    'label' => 'Consent forms',
+                    'description' => 'Consent evidence exists for processing that relies on consent.',
+                    'complete' => $consentForms->contains(fn (ComplianceForm $form): bool => in_array($form->computedStatus(), ['active', 'approved'], true)),
+                    'status' => $consentForms->count().' recorded',
+                    'href' => route('compliance.forms.index'),
+                ],
+                [
+                    'label' => 'Cross-border authorisation',
+                    'description' => 'Transfers outside Zimbabwe have authorisation and safeguards recorded.',
+                    'complete' => $crossBorderForms->contains(fn (ComplianceForm $form): bool => in_array($form->computedStatus(), ['active', 'approved', 'submitted'], true)),
+                    'status' => $crossBorderForms->count().' recorded',
+                    'href' => route('compliance.forms.index'),
+                ],
+                [
+                    'label' => 'General compliance forms',
+                    'description' => 'Policies, assessments, approvals, and other evidence are tracked.',
+                    'complete' => $generalForms->contains(fn (ComplianceForm $form): bool => in_array($form->computedStatus(), ['active', 'approved'], true)),
+                    'status' => $generalForms->count().' recorded',
+                    'href' => route('compliance.forms.index'),
+                ],
+                [
+                    'label' => 'Incident readiness',
+                    'description' => 'Open breach records and DP3 response work are visible.',
+                    'complete' => $activeIncidents === 0,
+                    'status' => $activeIncidents.' open',
+                    'href' => route('compliance.incidents.index'),
+                ],
+            ],
         ]);
     }
 }

@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>{{ $title ?? 'Compliance workspace' }} · {{ config('app.name', 'Protego') }}</title>
+    <title>{{ $title ?? 'Compliance workspace' }} · DPOSync Zim</title>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-[#f4f7f8] text-slate-900 antialiased">
@@ -11,35 +11,45 @@
         <aside class="border-b border-slate-200 bg-[#0e1b23] text-white lg:min-h-screen lg:border-b-0 lg:border-r lg:border-slate-800">
             <div class="flex items-center justify-between px-6 py-5 lg:block">
                 <a href="{{ route('home') }}" class="inline-flex items-center gap-3">
-                    <span class="grid size-9 place-items-center bg-cyan-300 text-sm font-black text-[#0e1b23]">P</span>
+                    <span class="grid size-9 place-items-center bg-cyan-300 text-sm font-black text-[#0e1b23]">DZ</span>
                     <span>
-                        <span class="block text-sm font-bold tracking-tight">Protego</span>
+                        <span class="block text-sm font-bold tracking-tight">DPOSync Zim</span>
                         <span class="block text-[10px] uppercase tracking-[0.2em] text-slate-400">Zimbabwe privacy ops</span>
                     </span>
                 </a>
                 <details class="relative lg:hidden">
                     <summary class="grid size-9 cursor-pointer list-none place-items-center border border-slate-700 text-slate-300" aria-label="Open navigation">☰</summary>
                     <nav class="absolute right-0 top-12 z-20 grid w-64 gap-1 border border-slate-700 bg-[#0e1b23] p-3 shadow-xl">
+                        <a href="{{ route('compliance.dpo-profile.edit') }}" class="nav-link">◉ &nbsp; DPO profile</a>
                         <a href="{{ route('compliance.dashboard') }}" class="nav-link">◈ &nbsp; Overview</a>
                         <a href="{{ route('compliance.organizations.index') }}" class="nav-link">⌂ &nbsp; Organisations</a>
                         <a href="{{ route('compliance.dp1.create') }}" class="nav-link">▣ &nbsp; DP1 application</a>
                         <a href="{{ route('compliance.dp2.index') }}" class="nav-link">◎ &nbsp; DPO appointment</a>
                         <a href="{{ route('compliance.ropa.index') }}" class="nav-link">≡ &nbsp; Processing register</a>
+                        <a href="{{ route('compliance.forms.index') }}" class="nav-link">◫ &nbsp; Compliance forms</a>
                         <a href="{{ route('compliance.incidents.index') }}" class="nav-link">! &nbsp; Incidents</a>
                         <a href="{{ route('compliance.privacy-policies.create') }}" class="nav-link">▤ &nbsp; Privacy policies</a>
+                        @if(auth()->user()?->isAdmin())
+                            <a href="{{ route('admin.dashboard') }}" class="nav-link">◆ &nbsp; Admin</a>
+                        @endif
                     </nav>
                 </details>
             </div>
 
             <nav class="hidden gap-1 px-4 pb-5 lg:grid">
                 <p class="px-3 pb-2 pt-5 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Workspace</p>
+                <a href="{{ route('compliance.dpo-profile.edit') }}" class="nav-link {{ request()->routeIs('compliance.dpo-profile.*') ? 'nav-link-active' : '' }}"><span>◉</span> DPO profile</a>
                 <a href="{{ route('compliance.dashboard') }}" class="nav-link {{ request()->routeIs('compliance.dashboard', 'home') ? 'nav-link-active' : '' }}"><span>◈</span> Overview</a>
                 <a href="{{ route('compliance.organizations.index') }}" class="nav-link {{ request()->routeIs('compliance.organizations.*') ? 'nav-link-active' : '' }}"><span>⌂</span> Organisations</a>
                 <a href="{{ route('compliance.dp1.create') }}" class="nav-link {{ request()->routeIs('compliance.dp1.*') ? 'nav-link-active' : '' }}"><span>▣</span> DP1 application</a>
                 <a href="{{ route('compliance.dp2.index') }}" class="nav-link {{ request()->routeIs('compliance.dp2.*') ? 'nav-link-active' : '' }}"><span>◎</span> DPO appointment</a>
                 <a href="{{ route('compliance.ropa.index') }}" class="nav-link {{ request()->routeIs('compliance.ropa.*') ? 'nav-link-active' : '' }}"><span>≡</span> Processing register</a>
+                <a href="{{ route('compliance.forms.index') }}" class="nav-link {{ request()->routeIs('compliance.forms.*') ? 'nav-link-active' : '' }}"><span>◫</span> Compliance forms</a>
                 <a href="{{ route('compliance.incidents.index') }}" class="nav-link {{ request()->routeIs('compliance.incidents.*') ? 'nav-link-active' : '' }}"><span>!</span> Incidents</a>
                 <a href="{{ route('compliance.privacy-policies.create') }}" class="nav-link {{ request()->routeIs('compliance.privacy-policies.*') ? 'nav-link-active' : '' }}"><span>▤</span> Privacy policies</a>
+                @if(auth()->user()?->isAdmin())
+                    <a href="{{ route('admin.dashboard') }}" class="nav-link {{ request()->routeIs('admin.*') ? 'nav-link-active' : '' }}"><span>◆</span> Admin</a>
+                @endif
                 <p class="px-3 pb-2 pt-8 text-[10px] font-bold uppercase tracking-[0.2em] text-slate-500">Reference</p>
                 <div class="px-3 text-xs leading-5 text-slate-400">Act Chapter 12:07<br>S.I. 155 of 2024<br>DP1 · DP2 · DP3</div>
             </nav>
@@ -49,8 +59,8 @@
             <header class="flex min-h-16 items-center justify-between border-b border-slate-200 bg-white px-6 lg:px-10">
                 <div class="text-sm text-slate-500">{{ $eyebrow ?? 'Compliance workspace' }}</div>
                 <div class="flex items-center gap-3">
-                    <span class="hidden text-right sm:block"><span class="block text-xs font-semibold">{{ auth()->user()?->name ?? 'Preview workspace' }}</span><span class="block text-[11px] text-slate-500">{{ auth()->user()?->activeOrganization()?->name ?? 'No organisation selected' }}</span></span>
-                    <span class="grid size-9 place-items-center rounded-full bg-cyan-100 text-sm font-bold text-cyan-900">{{ substr(auth()->user()?->name ?? 'P', 0, 1) }}</span>
+                    <span class="hidden text-right sm:block"><span class="block text-xs font-semibold">{{ auth()->user()?->name ?? 'Preview workspace' }}</span><span class="block text-[11px] text-slate-500">{{ auth()->user()?->activeOrganization()?->name ?? 'No client selected' }}</span></span>
+                    <span class="grid size-9 place-items-center rounded-full bg-cyan-100 text-sm font-bold text-cyan-900">{{ substr(auth()->user()?->name ?? 'D', 0, 1) }}</span>
                     <form method="POST" action="{{ route('logout') }}">@csrf<button type="submit" class="text-xs font-bold text-slate-500 hover:text-slate-900">Sign out</button></form>
                 </div>
             </header>

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\FormDp2;
+use App\Models\Organization;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
@@ -14,14 +15,24 @@ class FormDp2Controller extends Controller
         return view('compliance.dp2.index', ['appointments' => FormDp2::latest()->get()]);
     }
 
-    public function create(): View
+    public function create(): View|RedirectResponse
     {
-        return view('compliance.dp2.create');
+        $organizations = $this->organizationsFor(auth()->user());
+
+        if ($organizations->isEmpty()) {
+            return to_route('compliance.organizations.create')->with('success', 'Add your first client organisation before preparing its DP2 appointment.');
+        }
+
+        return view('compliance.dp2.create', [
+            'organizations' => $organizations,
+            'activeOrganization' => auth()->user()->activeOrganization(),
+        ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
         $validated = $request->validate([
+            'organization_id' => ['nullable', 'integer'],
             'full_name' => ['required', 'string', 'max:255'],
             'controller_name' => ['required', 'string', 'max:255'],
             'controller_license_number' => ['required', 'string', 'max:255'],
@@ -43,8 +54,13 @@ class FormDp2Controller extends Controller
             'appointed_at' => ['required', 'date'],
         ]);
 
+        $organizationId = (int) ($validated['organization_id'] ?? $request->user()->activeOrganization()?->getKey());
+        $organization = $this->organizationsFor($request->user())->firstWhere('id', $organizationId);
+
+        abort_if($organization === null, 403);
+
         $form = FormDp2::create([
-            'organization_id' => $request->user()->activeOrganization()?->getKey(),
+            'organization_id' => $organization->id,
             'full_name' => $validated['full_name'],
             'controller_name' => $validated['controller_name'],
             'controller_license_number' => $validated['controller_license_number'],
@@ -67,7 +83,19 @@ class FormDp2Controller extends Controller
             'status' => 'active',
         ]);
 
-        return to_route('compliance.dp2.index')->with('success', 'DPO appointment recorded. Download it when you are ready.');
+        return to_route('compliance.dp2.show', ['dp2' => $form])->with('success', 'DPO appointment recorded. Review it before downloading.');
+    }
+
+    public function show(FormDp2 $dp2): View
+    {
+        return view('compliance.dp2.show', ['form' => $dp2]);
+    }
+
+    private function organizationsFor($user)
+    {
+        return $user->isAdmin()
+            ? Organization::with('dpos')->orderBy('name')->get()
+            : $user->organizations()->with('dpos')->orderBy('name')->get();
     }
 
     /** @return array<int, string> */

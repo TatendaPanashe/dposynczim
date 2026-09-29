@@ -117,4 +117,9 @@ return [
 
     'project_brief_to' => env('PROJECT_BRIEF_TO', 'info@kodomotech.org'),
 
+    'potraz_applications_to' => array_filter(array_map(
+        'trim',
+        explode(',', env('POTRAZ_APPLICATIONS_TO', 'ushe@dpa.zw,marere@dpa.zw,bvute@potraz.zw')),
+    )),
+
 ];

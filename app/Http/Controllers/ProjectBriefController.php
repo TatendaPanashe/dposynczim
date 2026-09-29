@@ -41,6 +41,6 @@ class ProjectBriefController extends Controller
 
         return redirect()
             ->route('project-brief.create')
-            ->with('status', 'Thanks. Your project brief has been sent to Kodomo Technologies.');
+            ->with('status', 'Thanks. Your DPOSync Zim request has been sent.');
     }
 }
