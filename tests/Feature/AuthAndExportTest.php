@@ -16,6 +16,8 @@ use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Laravel\Socialite\Facades\Socialite;
+use Mockery;
 use Tests\TestCase;
 use ZipArchive;
 
@@ -35,6 +37,47 @@ class AuthAndExportTest extends TestCase
         $response->assertRedirect(route('compliance.dpo-profile.edit'));
         $this->assertAuthenticatedAs(User::where('email', 'tendai@example.test')->firstOrFail());
         $this->assertDatabaseMissing('organizations', ['name' => 'Mosi Legal']);
+    }
+
+    public function test_a_visitor_can_create_an_account_with_google(): void
+    {
+        $provider = Mockery::mock();
+        $googleUser = Mockery::mock();
+        $googleUser->shouldReceive('getId')->andReturn('google-123');
+        $googleUser->shouldReceive('getEmail')->andReturn('tendai@example.test');
+        $googleUser->shouldReceive('getName')->andReturn('Tendai Moyo');
+        $googleUser->shouldReceive('getNickname')->andReturn(null);
+        $provider->shouldReceive('user')->once()->andReturn($googleUser);
+        Socialite::shouldReceive('driver')->once()->with('google')->andReturn($provider);
+
+        $response = $this->get(route('auth.google.callback'));
+
+        $user = User::where('email', 'tendai@example.test')->firstOrFail();
+        $response->assertRedirect(route('compliance.dpo-profile.edit'));
+        $this->assertAuthenticatedAs($user);
+        $this->assertSame('google-123', $user->google_id);
+        $this->assertNotNull($user->email_verified_at);
+    }
+
+    public function test_google_login_links_an_existing_account_by_email(): void
+    {
+        $user = User::factory()->create([
+            'email' => 'tendai@example.test',
+            'google_id' => null,
+        ]);
+        $provider = Mockery::mock();
+        $googleUser = Mockery::mock();
+        $googleUser->shouldReceive('getId')->andReturn('google-456');
+        $googleUser->shouldReceive('getEmail')->andReturn('tendai@example.test');
+        $provider->shouldReceive('user')->once()->andReturn($googleUser);
+        Socialite::shouldReceive('driver')->once()->with('google')->andReturn($provider);
+
+        $response = $this->get(route('auth.google.callback'));
+
+        $response->assertRedirect(route('compliance.dpo-profile.edit'));
+        $this->assertAuthenticatedAs($user->fresh());
+        $this->assertSame('google-456', $user->fresh()->google_id);
+        $this->assertSame(1, User::where('email', 'tendai@example.test')->count());
     }
 
     public function test_a_ropa_download_requires_monthly_access(): void

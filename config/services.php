@@ -35,6 +35,12 @@ return [
         ],
     ],
 
+    'google' => [
+        'client_id' => env('GOOGLE_CLIENT_ID'),
+        'client_secret' => env('GOOGLE_CLIENT_SECRET'),
+        'redirect' => env('GOOGLE_REDIRECT_URI'),
+    ],
+
     'pesepay' => [
         'integration_key' => env('PESEPAY_INTEGRATION_KEY'),
         'encryption_key' => env('PESEPAY_ENCRYPTION_KEY'),

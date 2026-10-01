@@ -14,6 +14,7 @@ use Illuminate\Notifications\Notifiable;
 
 #[Fillable([
     'organization_id', 'name', 'email', 'password', 'is_admin',
+    'email_verified_at', 'google_id',
     'dpo_registration_number', 'dpo_address', 'dpo_qualifications',
     'dpo_certification_status', 'dpo_reporting_line', 'dpo_official_phone',
     'dpo_mobile',
