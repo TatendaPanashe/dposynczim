@@ -3,8 +3,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Contact DPOSync Zim for DPO, SI, and organisation privacy compliance support in Zimbabwe.">
-    <title>Contact · DPOSync Zim</title>
+    <title>Contact Data Protection Support · DPOSync Zim</title>
+    @include('partials.public-seo', [
+        'title' => 'Contact Data Protection Support · DPOSync Zim',
+        'description' => 'Contact DPOSync Zim for data protection, DPO, system integrator, and organisation privacy compliance support in Zimbabwe.',
+        'canonical' => route('contact'),
+    ])
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-[#071013] text-white antialiased">
@@ -16,7 +20,7 @@
             <div class="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.88fr_1.12fr] lg:items-start">
                 <div>
                     <p class="mb-5 text-sm font-black uppercase tracking-[0.24em] text-[#b9ff4f]">Contact DPOSync Zim</p>
-                    <h1 class="max-w-4xl text-5xl font-black leading-[0.96] tracking-tight sm:text-6xl lg:text-7xl">Bring your privacy operations into one workspace.</h1>
+                    <h1 class="max-w-4xl text-5xl font-black leading-[0.96] tracking-tight sm:text-6xl lg:text-7xl">Bring your data protection operations into one workspace.</h1>
                     <p class="mt-7 max-w-2xl text-lg leading-8 text-slate-300">Talk to us if you are a DPO, an SI supporting client systems, or an organisation that needs a cleaner way to manage Zimbabwean data protection workflows.</p>
                 </div>
 

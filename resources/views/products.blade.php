@@ -3,8 +3,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Explore the DPOSync Zim platform for DPO profiles, SI client workspaces, DP1, DP2, ROPA, privacy policies, incidents, payments, and POTRAZ-ready submissions.">
-    <title>Platform · DPOSync Zim</title>
+    <title>Data Protection Compliance Platform · DPOSync Zim</title>
+    @include('partials.public-seo', [
+        'title' => 'Data Protection Compliance Platform · DPOSync Zim',
+        'description' => 'Explore the DPOSync Zim data protection platform for DPO profiles, SI client workspaces, DP1, DP2, ROPA, privacy policies, incidents, payments, and POTRAZ-ready submissions in Zimbabwe.',
+        'canonical' => route('products'),
+    ])
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-[#071013] text-white antialiased">
@@ -15,7 +19,7 @@
             <div class="absolute inset-0 -z-10 bg-[linear-gradient(135deg,#071013_0%,#102d35_52%,#16300f_100%)]"></div>
             <div class="mx-auto max-w-7xl">
                 <p class="mb-5 text-sm font-black uppercase tracking-[0.24em] text-[#b9ff4f]">Platform</p>
-                <h1 class="max-w-5xl text-5xl font-black leading-[0.96] tracking-tight sm:text-6xl lg:text-7xl">One system for the privacy work that usually gets scattered.</h1>
+                <h1 class="max-w-5xl text-5xl font-black leading-[0.96] tracking-tight sm:text-6xl lg:text-7xl">One data protection platform for the privacy work that usually gets scattered.</h1>
                 <p class="mt-7 max-w-3xl text-lg leading-8 text-slate-300">DPOSync Zim brings the core data protection operations into a single workflow so DPOs and SIs can support organisations with speed, structure, and evidence.</p>
             </div>
         </section>

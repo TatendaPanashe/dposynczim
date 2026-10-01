@@ -3,8 +3,12 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="Learn how DPOSync Zim supports DPOs, system integrators, and organisations through Zimbabwean privacy compliance workflows.">
-    <title>How It Works · DPOSync Zim</title>
+    <title>Data Protection Services for DPOs and SIs · DPOSync Zim</title>
+    @include('partials.public-seo', [
+        'title' => 'Data Protection Services for DPOs and SIs · DPOSync Zim',
+        'description' => 'Learn how DPOSync Zim supports Zimbabwean data protection officers, system integrators, and organisations with privacy compliance workflows, DP records, policies, incidents, and POTRAZ-ready evidence.',
+        'canonical' => route('services'),
+    ])
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-[#071013] text-white antialiased">
@@ -16,7 +20,7 @@
             <div class="mx-auto grid max-w-7xl gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
                 <div>
                     <p class="mb-5 text-sm font-black uppercase tracking-[0.24em] text-[#b9ff4f]">How it works</p>
-                    <h1 class="max-w-4xl text-5xl font-black leading-[0.96] tracking-tight sm:text-6xl lg:text-7xl">Clear steps for serious privacy operations.</h1>
+                    <h1 class="max-w-4xl text-5xl font-black leading-[0.96] tracking-tight sm:text-6xl lg:text-7xl">Clear steps for serious data protection operations.</h1>
                     <p class="mt-7 max-w-2xl text-lg leading-8 text-slate-300">DPOSync Zim guides a DPO or SI from setup to client workspace, then from structured forms to downloadable compliance evidence.</p>
                 </div>
                 <div class="grid gap-3 sm:grid-cols-2">

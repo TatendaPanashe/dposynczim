@@ -15,12 +15,25 @@ use App\Http\Controllers\PotrazSubmissionController;
 use App\Http\Controllers\PrivacyPolicyController;
 use App\Http\Controllers\ProjectBriefController;
 use App\Http\Controllers\RopaRecordController;
+use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 
 Route::view('/', 'welcome')->name('home');
 Route::view('/services', 'services')->name('services');
 Route::view('/products', 'products')->name('products');
 Route::view('/contact', 'contact')->name('contact');
+Route::get('/sitemap.xml', function (): Response {
+    return response()
+        ->view('sitemap', [
+            'urls' => [
+                ['location' => route('home'), 'priority' => '1.0'],
+                ['location' => route('services'), 'priority' => '0.8'],
+                ['location' => route('products'), 'priority' => '0.8'],
+                ['location' => route('contact'), 'priority' => '0.6'],
+            ],
+        ])
+        ->header('Content-Type', 'application/xml');
+})->name('sitemap');
 Route::get('/start-project', [ProjectBriefController::class, 'create'])->name('project-brief.create');
 Route::post('/start-project', [ProjectBriefController::class, 'store'])->middleware('throttle:5,1')->name('project-brief.store');
 

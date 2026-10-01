@@ -3,8 +3,35 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="description" content="DPOSync Zim helps Zimbabwean data protection officers, system integrators, and organisations manage POTRAZ-ready privacy compliance workflows.">
-    <title>DPOSync Zim · Data protection operations for Zimbabwe</title>
+    <title>Data Protection Zimbabwe · DPOSync Zim</title>
+    @include('partials.public-seo', [
+        'title' => 'Data Protection Zimbabwe · DPOSync Zim',
+        'description' => 'DPOSync Zim is a Zimbabwe data protection and privacy compliance platform for DPOs, system integrators, and organisations preparing DP1, DP2, ROPA, privacy policies, breach records, and POTRAZ-ready submissions.',
+        'canonical' => route('home'),
+        'jsonLd' => [
+            '@context' => 'https://schema.org',
+            '@type' => 'SoftwareApplication',
+            'name' => 'DPOSync Zim',
+            'applicationCategory' => 'BusinessApplication',
+            'operatingSystem' => 'Web',
+            'description' => 'Zimbabwe data protection and privacy compliance workspace for DPOs, system integrators, and organisations.',
+            'url' => route('home'),
+            'publisher' => [
+                '@type' => 'Organization',
+                'name' => 'Kodomo Technologies',
+                'email' => 'info@kodomotech.org',
+            ],
+            'areaServed' => [
+                '@type' => 'Country',
+                'name' => 'Zimbabwe',
+            ],
+            'offers' => [
+                '@type' => 'Offer',
+                'availability' => 'https://schema.org/InStock',
+                'url' => route('register'),
+            ],
+        ],
+    ])
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="min-h-screen bg-[#071013] text-white antialiased">
@@ -19,7 +46,7 @@
             <div class="relative mx-auto flex max-w-7xl flex-col justify-center pt-14">
                 <div class="max-w-4xl">
                     <p class="mb-5 text-sm font-black uppercase tracking-[0.24em] text-[#b9ff4f]">DPOSync Zim</p>
-                    <h1 class="text-5xl font-black leading-[0.96] tracking-tight sm:text-6xl lg:text-7xl">State of the art data protection operations for Zimbabwe.</h1>
+                    <h1 class="text-5xl font-black leading-[0.96] tracking-tight sm:text-6xl lg:text-7xl">Data protection compliance software for Zimbabwe.</h1>
                     <p class="mt-7 max-w-2xl text-lg leading-8 text-slate-200">One clean workspace for DPOs, system integrators, and organisations to prepare DP1, DP2, ROPA, privacy policies, breach records, payments, and regulator-ready submissions.</p>
                     <div class="mt-9 flex flex-wrap gap-3">
                         <a href="{{ route('register') }}" class="bg-[#b9ff4f] px-6 py-4 text-sm font-black uppercase tracking-wide text-[#071013] shadow-[0_18px_60px_rgba(185,255,79,0.22)] transition hover:bg-white">Start compliance workspace</a>
