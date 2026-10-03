@@ -6,6 +6,7 @@ use App\Models\BreachIncident;
 use App\Models\ComplianceForm;
 use App\Models\FormDp1;
 use App\Models\FormDp2;
+use App\Models\OrganisationComplianceObligation;
 use App\Models\RopaRecord;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\View\View;
@@ -26,11 +27,28 @@ class DashboardController extends Controller
         $crossBorderForms = ComplianceForm::where('type', 'cross_border_authorisation')->get();
         $generalForms = ComplianceForm::where('type', 'general')->get();
         $activeIncidents = BreachIncident::whereIn('status', ['open', 'investigating'])->count();
+        $periodDue = OrganisationComplianceObligation::whereBetween('due_at', [now()->startOfMonth(), now()->endOfMonth()])
+            ->where('status', '!=', 'waived');
+        $periodDueCount = (clone $periodDue)->count();
+        $completedOnTime = (clone $periodDue)->where('status', 'completed')->whereColumn('completed_at', '<=', 'due_at')->count();
 
         return view('compliance.dashboard', [
             'activeOrganization' => auth()->user()?->activeOrganization(),
             'dp1Drafts' => FormDp1::where('status', 'draft')->count(),
             'activeIncidents' => $activeIncidents,
+            'calendarStats' => [
+                'active' => OrganisationComplianceObligation::whereNotIn('status', ['completed', 'waived'])->count(),
+                'due7' => OrganisationComplianceObligation::whereBetween('due_at', [today(), today()->addDays(7)])->whereNotIn('status', ['completed', 'waived'])->count(),
+                'due30' => OrganisationComplianceObligation::whereBetween('due_at', [today(), today()->addDays(30)])->whereNotIn('status', ['completed', 'waived'])->count(),
+                'due90' => OrganisationComplianceObligation::whereBetween('due_at', [today(), today()->addDays(90)])->whereNotIn('status', ['completed', 'waived'])->count(),
+                'overdue' => OrganisationComplianceObligation::whereDate('due_at', '<', today())->whereNotIn('status', ['completed', 'waived'])->count(),
+                'completedMonth' => OrganisationComplianceObligation::whereBetween('completed_at', [now()->startOfMonth(), now()->endOfMonth()])->count(),
+                'score' => $periodDueCount > 0 ? round(($completedOnTime / $periodDueCount) * 100) : 100,
+            ],
+            'todayActions' => OrganisationComplianceObligation::with('assignedUser')->whereDate('due_at', '<=', today())->whereNotIn('status', ['completed', 'waived'])->orderBy('due_at')->limit(6)->get(),
+            'highRiskUpcoming' => OrganisationComplianceObligation::with('assignedUser')->whereIn('risk_level', ['high', 'critical'])->whereDate('due_at', '>=', today())->whereNotIn('status', ['completed', 'waived'])->orderBy('due_at')->limit(6)->get(),
+            'calendarByCategory' => OrganisationComplianceObligation::selectRaw('category, count(*) as total')->whereNotIn('status', ['completed', 'waived'])->groupBy('category')->orderByDesc('total')->get(),
+            'teamWorkload' => OrganisationComplianceObligation::with('assignedUser')->whereNotIn('status', ['completed', 'waived'])->get()->groupBy(fn (OrganisationComplianceObligation $obligation): string => $obligation->assignedUser?->name ?? 'Unassigned'),
             'ropaRecords' => $ropaRecords,
             'dpoStatus' => $activeDp2 !== null,
             'recentIncidents' => BreachIncident::latest('detected_at')->limit(4)->get(),

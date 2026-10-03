@@ -5,6 +5,46 @@
     <x-slot:actions><a href="{{ route('compliance.dp1.create') }}" class="button-primary">Start DP1 application <span aria-hidden="true">↗</span></a></x-slot:actions>
 </x-page-heading>
 
+<section class="mb-8 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+    <div class="surface p-5"><span class="text-xs font-bold uppercase tracking-wide text-slate-500">Active obligations</span><p class="mt-4 text-3xl font-bold">{{ $calendarStats['active'] }}</p><p class="text-xs text-slate-500">Across the organisation calendar</p></div>
+    <div class="surface p-5"><span class="text-xs font-bold uppercase tracking-wide text-slate-500">Due soon</span><p class="mt-4 text-3xl font-bold">{{ $calendarStats['due7'] }} / {{ $calendarStats['due30'] }} / {{ $calendarStats['due90'] }}</p><p class="text-xs text-slate-500">Next 7, 30 and 90 days</p></div>
+    <div class="surface p-5"><span class="text-xs font-bold uppercase tracking-wide text-slate-500">Overdue</span><p class="mt-4 text-3xl font-bold text-rose-700">{{ $calendarStats['overdue'] }}</p><p class="text-xs text-slate-500">Requires follow-up</p></div>
+    <div class="surface p-5"><span class="text-xs font-bold uppercase tracking-wide text-slate-500">Compliance score</span><p class="mt-4 text-3xl font-bold">{{ $calendarStats['score'] }}%</p><p class="text-xs text-slate-500">Completed on time / due this month</p></div>
+</section>
+
+<section class="mb-8 grid gap-6 xl:grid-cols-3">
+    <div class="surface p-5">
+        <h2 class="font-bold">Today's actions</h2>
+        <div class="mt-4 grid gap-3">
+            @forelse($todayActions as $item)
+                <a href="{{ route('compliance.calendar.show', $item) }}" class="border border-slate-200 p-3 text-sm hover:bg-slate-50"><span class="font-semibold">{{ $item->title }}</span><span class="mt-1 block text-xs text-slate-500">{{ $item->due_at->format('d M Y') }} · {{ $item->assignedUser?->name ?? 'Unassigned' }}</span></a>
+            @empty
+                <p class="text-sm text-slate-500">No due or overdue calendar actions today.</p>
+            @endforelse
+        </div>
+    </div>
+    <div class="surface p-5">
+        <h2 class="font-bold">High-risk upcoming</h2>
+        <div class="mt-4 grid gap-3">
+            @forelse($highRiskUpcoming as $item)
+                <a href="{{ route('compliance.calendar.show', $item) }}" class="border border-slate-200 p-3 text-sm hover:bg-slate-50"><span class="font-semibold">{{ $item->title }}</span><span class="mt-1 block text-xs text-slate-500">{{ str($item->risk_level)->headline() }} · {{ $item->due_at->format('d M Y') }}</span></a>
+            @empty
+                <p class="text-sm text-slate-500">No high or critical-risk obligations in view.</p>
+            @endforelse
+        </div>
+    </div>
+    <div class="surface p-5">
+        <h2 class="font-bold">Workload by owner</h2>
+        <div class="mt-4 grid gap-3">
+            @forelse($teamWorkload as $owner => $items)
+                <div class="flex items-center justify-between border border-slate-200 px-3 py-2 text-sm"><span>{{ $owner }}</span><strong>{{ $items->count() }}</strong></div>
+            @empty
+                <p class="text-sm text-slate-500">No active assignments yet.</p>
+            @endforelse
+        </div>
+    </div>
+</section>
+
 <section class="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
     <div class="surface p-5"><div class="flex items-start justify-between"><span class="text-xs font-bold uppercase tracking-wide text-slate-500">DP1 drafts</span><span class="text-cyan-700">▣</span></div><p class="mt-6 text-3xl font-bold tracking-tight">{{ $dp1Drafts }}</p><p class="mt-1 text-xs text-slate-500">Applications in progress</p></div>
     <div class="surface p-5"><div class="flex items-start justify-between"><span class="text-xs font-bold uppercase tracking-wide text-slate-500">Open incidents</span><span class="text-rose-700">!</span></div><p class="mt-6 text-3xl font-bold tracking-tight">{{ $activeIncidents }}</p><p class="mt-1 text-xs text-slate-500">24-hour DP3 clock monitored</p></div>

@@ -5,8 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 #[Fillable([
     'name', 'registration_number', 'slug', 'business_sector', 'legal_structure',
@@ -37,5 +37,10 @@ class Organization extends Model
     public function complianceForms(): HasMany
     {
         return $this->hasMany(ComplianceForm::class);
+    }
+
+    public function complianceObligations(): HasMany
+    {
+        return $this->hasMany(OrganisationComplianceObligation::class);
     }
 }

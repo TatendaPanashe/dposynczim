@@ -15,6 +15,8 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
+        $this->call(ComplianceObligationTemplateSeeder::class);
+
         User::updateOrCreate([
             'email' => 'info@kodomotech.org',
         ], [

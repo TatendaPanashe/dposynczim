@@ -57,3 +57,36 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 # dposynczim
+
+## SME Compliance Calendar
+
+The compliance calendar module adds configurable obligation templates, organisation-specific calendar occurrences, checklist progress, evidence uploads, reminders, reports, and dashboard KPIs.
+
+Setup:
+
+```bash
+php artisan migrate
+php artisan db:seed --class=ComplianceObligationTemplateSeeder
+```
+
+The main workspace routes live under `/compliance`: `/calendar`, `/my-tasks`, `/reports`, and admin-only `/catalogue`. CSV schedule export is available at `/compliance/calendar/export`.
+
+The daily reminder command is scheduled in `routes/console.php`:
+
+```bash
+php artisan compliance:send-reminders
+```
+
+Production cron should run Laravel's scheduler every minute:
+
+```bash
+* * * * * cd /path/to/application && php artisan schedule:run >> /dev/null 2>&1
+```
+
+Notifications use Laravel mail and database channels. Run a queue worker in production if the queue connection is asynchronous:
+
+```bash
+php artisan queue:work
+```
+
+Access follows the existing application model: super admins can manage the catalogue and all organisations, while organisation users are scoped through the active organisation and assignment/reviewer checks. Data-protection items are surfaced through `DataProtectionComplianceFeed`, which links existing DP1, DP2, ROPA, incident, and compliance-form records without duplicating them.
