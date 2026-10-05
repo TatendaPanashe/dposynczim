@@ -15,11 +15,29 @@ class DashboardController extends Controller
 {
     public function __invoke(): View|RedirectResponse
     {
-        if (auth()->user()?->needsDpoProfileSetup()) {
+        $user = auth()->user();
+
+        if ($user?->needsDpoProfileSetup()) {
             return to_route('compliance.dpo-profile.edit');
         }
 
-        $activeOrganization = auth()->user()?->activeOrganization();
+        if ($user?->isTaskUser()) {
+            $assignedQuery = OrganisationComplianceObligation::with(['assignedUser', 'reviewer'])
+                ->where(fn ($query) => $query
+                    ->where('assigned_user_id', $user->getKey())
+                    ->orWhere('reviewer_user_id', $user->getKey()));
+
+            return view('compliance.dashboard-assignee', [
+                'activeOrganization' => $user->activeOrganization(),
+                'openTasks' => (clone $assignedQuery)->whereNotIn('status', ['completed', 'waived'])->orderBy('due_at')->limit(8)->get(),
+                'dueToday' => (clone $assignedQuery)->whereDate('due_at', '<=', today())->whereNotIn('status', ['completed', 'waived'])->count(),
+                'due7' => (clone $assignedQuery)->whereBetween('due_at', [today(), today()->addDays(7)])->whereNotIn('status', ['completed', 'waived'])->count(),
+                'overdue' => (clone $assignedQuery)->whereDate('due_at', '<', today())->whereNotIn('status', ['completed', 'waived'])->count(),
+                'completedMonth' => (clone $assignedQuery)->whereBetween('completed_at', [now()->startOfMonth(), now()->endOfMonth()])->count(),
+            ]);
+        }
+
+        $activeOrganization = $user?->activeOrganization();
         $latestDp1 = FormDp1::latest()->first();
         $activeDp2 = FormDp2::where('status', 'active')->latest()->first();
         $ropaRecords = RopaRecord::count();

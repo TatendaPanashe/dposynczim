@@ -1,7 +1,7 @@
 @extends('layouts.app')
 @section('content')
 <x-page-heading eyebrow="DPO workspace · Client organisations" title="Your organisations" description="Manage every organisation you support and switch context before preparing a filing or reviewing an incident.">
-    <x-slot:actions><a href="{{ route('compliance.organizations.create') }}" class="button-primary">Add organisation <span aria-hidden="true">+</span></a></x-slot:actions>
+    <x-slot:actions><div class="flex flex-wrap gap-3"><a href="{{ route('compliance.users.index') }}" class="button-secondary">Manage users</a><a href="{{ route('compliance.organizations.create') }}" class="button-primary">Add organisation <span aria-hidden="true">+</span></a></div></x-slot:actions>
 </x-page-heading>
 <div class="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
     @forelse($organizations as $organization)

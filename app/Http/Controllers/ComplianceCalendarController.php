@@ -32,8 +32,8 @@ class ComplianceCalendarController extends Controller
             ->whereBetween('due_at', [$calendarStart->toDateString(), $calendarEnd->toDateString()])
             ->orderBy('due_at')
             ->get();
-        $activeQuery = OrganisationComplianceObligation::query()->whereNotIn('status', ['completed', 'waived']);
-        $periodDue = OrganisationComplianceObligation::query()
+        $activeQuery = $this->filteredObligations($request)->whereNotIn('status', ['completed', 'waived']);
+        $periodDue = $this->filteredObligations($request)
             ->whereBetween('due_at', [$month->toDateString(), $month->endOfMonth()->toDateString()])
             ->where('status', '!=', 'waived');
         $periodDueCount = (clone $periodDue)->count();
@@ -53,11 +53,12 @@ class ComplianceCalendarController extends Controller
                 'overdue' => (clone $activeQuery)->whereDate('due_at', '<', today())->count(),
                 'score' => $periodDueCount > 0 ? round(($completedOnTime / $periodDueCount) * 100) : 100,
             ],
-            'todayActions' => OrganisationComplianceObligation::with('assignedUser')->whereDate('due_at', '<=', today())->whereNotIn('status', ['completed', 'waived'])->orderBy('due_at')->limit(6)->get(),
-            'upcomingCritical' => OrganisationComplianceObligation::with('assignedUser')->whereIn('risk_level', ['high', 'critical'])->whereDate('due_at', '>=', today())->whereNotIn('status', ['completed', 'waived'])->orderBy('due_at')->limit(6)->get(),
+            'todayActions' => $this->filteredObligations($request)->with('assignedUser')->whereDate('due_at', '<=', today())->whereNotIn('status', ['completed', 'waived'])->orderBy('due_at')->limit(6)->get(),
+            'upcomingCritical' => $this->filteredObligations($request)->with('assignedUser')->whereIn('risk_level', ['high', 'critical'])->whereDate('due_at', '>=', today())->whereNotIn('status', ['completed', 'waived'])->orderBy('due_at')->limit(6)->get(),
             'templates' => ComplianceObligationTemplate::with('category')->where('is_active', true)->orderBy('title')->get(),
             'categories' => ComplianceCategory::where('is_active', true)->orderBy('name')->get(),
             'users' => $this->usersFor($request->user()),
+            'canManageWorkspace' => $request->user()->canManageComplianceWorkspace(),
             'feedItems' => $organization ? $feed->linkedItemsFor($organization) : collect(),
             'filters' => $request->only(['view', 'category', 'status', 'risk_level', 'owner', 'regulator', 'from', 'to']),
         ]);
@@ -70,11 +71,14 @@ class ComplianceCalendarController extends Controller
         return view('compliance.calendar.show', [
             'obligation' => $obligation->load(['assignedUser', 'reviewer', 'checklistItems', 'evidence', 'activityLogs']),
             'users' => $this->usersFor(auth()->user()),
+            'canManageWorkspace' => auth()->user()->canManageComplianceWorkspace(),
         ]);
     }
 
     public function store(Request $request): RedirectResponse
     {
+        abort_unless($request->user()->canManageComplianceWorkspace(), 403);
+
         $validated = $request->validate([
             'template_id' => ['nullable', 'integer', 'exists:compliance_obligation_templates,id'],
             'title' => ['required_without:template_id', 'nullable', 'string', 'max:255'],
@@ -89,6 +93,7 @@ class ComplianceCalendarController extends Controller
 
         $organization = $request->user()->activeOrganization();
         abort_if($organization === null, 403);
+        $this->authorizeAssignedUsers($request, $validated);
 
         $template = isset($validated['template_id'])
             ? ComplianceObligationTemplate::with('category', 'checklistItems')->findOrFail($validated['template_id'])
@@ -131,6 +136,7 @@ class ComplianceCalendarController extends Controller
     public function update(Request $request, OrganisationComplianceObligation $obligation): RedirectResponse
     {
         abort_unless($obligation->isVisibleTo($request->user()), 403);
+        abort_unless($request->user()->canManageComplianceWorkspace(), 403);
 
         $validated = $request->validate([
             'status' => ['required', 'string', 'in:'.implode(',', OrganisationComplianceObligation::STATUSES)],
@@ -139,6 +145,7 @@ class ComplianceCalendarController extends Controller
             'due_at' => ['required', 'date'],
             'notes' => ['nullable', 'string', 'max:5000'],
         ]);
+        $this->authorizeAssignedUsers($request, $validated);
 
         $obligation->update($validated);
         $this->log($obligation, 'updated', $request->user(), $validated);
@@ -185,6 +192,7 @@ class ComplianceCalendarController extends Controller
     public function waive(Request $request, OrganisationComplianceObligation $obligation): RedirectResponse
     {
         abort_unless($obligation->isVisibleTo($request->user()), 403);
+        abort_unless($request->user()->canManageComplianceWorkspace(), 403);
 
         $validated = $request->validate(['waiver_reason' => ['required', 'string', 'max:3000']]);
         $obligation->update(['status' => 'waived', 'waiver_reason' => $validated['waiver_reason'], 'waived_at' => now()->toDateString()]);
@@ -230,6 +238,10 @@ class ComplianceCalendarController extends Controller
     private function filteredObligations(Request $request)
     {
         return OrganisationComplianceObligation::query()
+            ->when(! $request->user()->canManageComplianceWorkspace(), fn ($query) => $query
+                ->where(fn ($query) => $query
+                    ->where('assigned_user_id', $request->user()->getKey())
+                    ->orWhere('reviewer_user_id', $request->user()->getKey())))
             ->when($request->filled('category'), fn ($query) => $query->where('category', $request->string('category')))
             ->when($request->filled('status'), fn ($query) => $query->where('status', $request->string('status')))
             ->when($request->filled('risk_level'), fn ($query) => $query->where('risk_level', $request->string('risk_level')))
@@ -247,7 +259,22 @@ class ComplianceCalendarController extends Controller
 
         $organization = $user->activeOrganization();
 
-        return $organization?->users()->orderBy('name')->get() ?? collect([$user]);
+        return $organization?->members()->orderBy('name')->get() ?? collect([$user]);
+    }
+
+    /**
+     * @param  array<string, mixed>  $validated
+     */
+    private function authorizeAssignedUsers(Request $request, array $validated): void
+    {
+        $organization = $request->user()->activeOrganization();
+        $memberIds = $organization?->members()->pluck('users.id')->all() ?? [];
+
+        foreach (['assigned_user_id', 'reviewer_user_id'] as $key) {
+            if (isset($validated[$key]) && ! in_array((int) $validated[$key], $memberIds, true)) {
+                abort(403);
+            }
+        }
     }
 
     private function log(OrganisationComplianceObligation $obligation, string $action, ?User $user, array $properties = []): void

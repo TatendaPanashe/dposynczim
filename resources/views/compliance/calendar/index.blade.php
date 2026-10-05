@@ -106,6 +106,7 @@
 </section>
 
 <section class="row g-4 mt-1">
+    @if($canManageWorkspace)
     <div class="col-xl-4">
         <div class="bootstrap-surface p-4">
             <h2 class="h5 fw-bold mb-3"><i class="bi bi-plus-circle text-primary me-2"></i>Add obligation</h2>
@@ -133,8 +134,9 @@
             </form>
         </div>
     </div>
+    @endif
 
-    <div class="col-xl-8">
+    <div class="{{ $canManageWorkspace ? 'col-xl-8' : 'col-12' }}">
         <div class="bootstrap-surface overflow-hidden">
             <form method="GET" class="row g-3 align-items-end p-4 border-bottom">
                 <input type="hidden" name="month" value="{{ $calendarMonth->format('Y-m-01') }}">

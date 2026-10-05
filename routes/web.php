@@ -19,6 +19,7 @@ use App\Http\Controllers\PotrazSubmissionController;
 use App\Http\Controllers\PrivacyPolicyController;
 use App\Http\Controllers\ProjectBriefController;
 use App\Http\Controllers\RopaRecordController;
+use App\Http\Controllers\WorkspaceUserController;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Route;
 
@@ -54,8 +55,6 @@ Route::post('/logout', [AuthController::class, 'logout'])->middleware('auth')->n
 Route::post('/compliance/payments/{payment}/result', [PaymentController::class, 'result'])->name('compliance.payments.result');
 
 Route::middleware('auth')->prefix('compliance')->name('compliance.')->group(function (): void {
-    Route::get('/dpo-profile', [DpoProfileController::class, 'edit'])->name('dpo-profile.edit');
-    Route::put('/dpo-profile', [DpoProfileController::class, 'update'])->name('dpo-profile.update');
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
     Route::get('/calendar/export', [ComplianceCalendarController::class, 'export'])->name('calendar.export');
     Route::get('/calendar', [ComplianceCalendarController::class, 'index'])->name('calendar.index');
@@ -66,31 +65,38 @@ Route::middleware('auth')->prefix('compliance')->name('compliance.')->group(func
     Route::post('/calendar/{obligation}/waive', [ComplianceCalendarController::class, 'waive'])->name('calendar.waive');
     Route::post('/calendar/{obligation}/checklist', [ComplianceCalendarController::class, 'checklist'])->name('calendar.checklist');
     Route::get('/my-tasks', MyComplianceTaskController::class)->name('tasks.index');
-    Route::get('/reports', ComplianceReportController::class)->name('reports.index');
-    Route::get('/catalogue', [ComplianceCatalogueController::class, 'index'])->name('catalogue.index');
-    Route::post('/catalogue', [ComplianceCatalogueController::class, 'store'])->name('catalogue.store');
-    Route::resource('dp1', FormDp1Controller::class)->only(['index', 'create', 'store', 'show', 'edit', 'update']);
-    Route::get('/dp1/{formDp1}/payment', [PaymentController::class, 'showDp1'])->name('payments.dp1');
-    Route::get('/dp1/{formDp1}/download', [DocumentDownloadController::class, 'dp1'])->name('dp1.download');
-    Route::post('/dp1/{formDp1}/send-potraz', [PotrazSubmissionController::class, 'dp1'])->name('dp1.send-potraz');
-    Route::resource('dp2', FormDp2Controller::class)->only(['index', 'create', 'store', 'show']);
-    Route::get('/dp2/{formDp2}/payment', [PaymentController::class, 'showDp2'])->name('payments.dp2');
-    Route::get('/dp2/{formDp2}/download', [DocumentDownloadController::class, 'dp2'])->name('dp2.download');
-    Route::post('/dp2/{formDp2}/send-potraz', [PotrazSubmissionController::class, 'dp2'])->name('dp2.send-potraz');
-    Route::post('/payments/pesepay', [PaymentController::class, 'initiate'])->name('payments.initiate');
-    Route::match(['get', 'post'], '/payments/{payment}/return', [PaymentController::class, 'returned'])->name('payments.return');
-    Route::get('/ropa/payment', [PaymentController::class, 'showRopa'])->name('payments.ropa');
-    Route::get('/ropa/download', [DocumentDownloadController::class, 'ropa'])->name('ropa.download');
-    Route::resource('ropa', RopaRecordController::class)->only(['index', 'create', 'store']);
-    Route::resource('forms', ComplianceFormController::class)->only(['index', 'create', 'store', 'edit', 'update'])->parameters(['forms' => 'form']);
-    Route::resource('incidents', BreachIncidentController::class)->only(['index', 'create', 'store']);
-    Route::get('/incidents/{breachIncident}/payment', [PaymentController::class, 'showDp3'])->name('payments.dp3');
-    Route::get('/incidents/{breachIncident}/download', [DocumentDownloadController::class, 'incident'])->name('incidents.download');
-    Route::post('/incidents/{breachIncident}/send-potraz', [PotrazSubmissionController::class, 'dp3'])->name('incidents.send-potraz');
-    Route::resource('organizations', OrganizationController::class)->only(['index', 'create', 'store']);
-    Route::post('/organizations/{organization}/switch', [OrganizationController::class, 'switch'])->name('organizations.switch');
-    Route::get('/privacy-policies/create', [PrivacyPolicyController::class, 'create'])->name('privacy-policies.create');
-    Route::post('/privacy-policies/download', [PrivacyPolicyController::class, 'download'])->name('privacy-policies.download');
+
+    Route::middleware('workspace.manager')->group(function (): void {
+        Route::get('/dpo-profile', [DpoProfileController::class, 'edit'])->name('dpo-profile.edit');
+        Route::put('/dpo-profile', [DpoProfileController::class, 'update'])->name('dpo-profile.update');
+        Route::get('/reports', ComplianceReportController::class)->name('reports.index');
+        Route::get('/catalogue', [ComplianceCatalogueController::class, 'index'])->name('catalogue.index');
+        Route::post('/catalogue', [ComplianceCatalogueController::class, 'store'])->name('catalogue.store');
+        Route::resource('dp1', FormDp1Controller::class)->only(['index', 'create', 'store', 'show', 'edit', 'update']);
+        Route::get('/dp1/{formDp1}/payment', [PaymentController::class, 'showDp1'])->name('payments.dp1');
+        Route::get('/dp1/{formDp1}/download', [DocumentDownloadController::class, 'dp1'])->name('dp1.download');
+        Route::post('/dp1/{formDp1}/send-potraz', [PotrazSubmissionController::class, 'dp1'])->name('dp1.send-potraz');
+        Route::resource('dp2', FormDp2Controller::class)->only(['index', 'create', 'store', 'show']);
+        Route::get('/dp2/{formDp2}/payment', [PaymentController::class, 'showDp2'])->name('payments.dp2');
+        Route::get('/dp2/{formDp2}/download', [DocumentDownloadController::class, 'dp2'])->name('dp2.download');
+        Route::post('/dp2/{formDp2}/send-potraz', [PotrazSubmissionController::class, 'dp2'])->name('dp2.send-potraz');
+        Route::post('/payments/pesepay', [PaymentController::class, 'initiate'])->name('payments.initiate');
+        Route::match(['get', 'post'], '/payments/{payment}/return', [PaymentController::class, 'returned'])->name('payments.return');
+        Route::get('/ropa/payment', [PaymentController::class, 'showRopa'])->name('payments.ropa');
+        Route::get('/ropa/download', [DocumentDownloadController::class, 'ropa'])->name('ropa.download');
+        Route::resource('ropa', RopaRecordController::class)->only(['index', 'create', 'store']);
+        Route::resource('forms', ComplianceFormController::class)->only(['index', 'create', 'store', 'edit', 'update'])->parameters(['forms' => 'form']);
+        Route::resource('incidents', BreachIncidentController::class)->only(['index', 'create', 'store']);
+        Route::get('/incidents/{breachIncident}/payment', [PaymentController::class, 'showDp3'])->name('payments.dp3');
+        Route::get('/incidents/{breachIncident}/download', [DocumentDownloadController::class, 'incident'])->name('incidents.download');
+        Route::post('/incidents/{breachIncident}/send-potraz', [PotrazSubmissionController::class, 'dp3'])->name('incidents.send-potraz');
+        Route::resource('organizations', OrganizationController::class)->only(['index', 'create', 'store']);
+        Route::post('/organizations/{organization}/switch', [OrganizationController::class, 'switch'])->name('organizations.switch');
+        Route::get('/users', [WorkspaceUserController::class, 'index'])->name('users.index');
+        Route::post('/users', [WorkspaceUserController::class, 'store'])->name('users.store');
+        Route::get('/privacy-policies/create', [PrivacyPolicyController::class, 'create'])->name('privacy-policies.create');
+        Route::post('/privacy-policies/download', [PrivacyPolicyController::class, 'download'])->name('privacy-policies.download');
+    });
 });
 
 Route::middleware('auth')->prefix('admin')->name('admin.')->group(function (): void {

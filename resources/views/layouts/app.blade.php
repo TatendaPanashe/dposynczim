@@ -11,7 +11,8 @@
 <body class="app-body">
     @php
         $dataProtectionOpen = request()->routeIs('compliance.dp1.*', 'compliance.dp2.*', 'compliance.ropa.*', 'compliance.forms.*', 'compliance.incidents.*', 'compliance.privacy-policies.*', 'compliance.dpo-profile.*');
-        $adminOpen = request()->routeIs('compliance.organizations.*', 'compliance.catalogue.*', 'admin.*');
+        $adminOpen = request()->routeIs('compliance.organizations.*', 'compliance.users.*', 'compliance.catalogue.*', 'admin.*');
+        $canManageWorkspace = auth()->user()?->canManageComplianceWorkspace() ?? false;
     @endphp
 
     <div class="app-shell d-lg-grid">
@@ -33,9 +34,12 @@
                     <a href="{{ route('compliance.dashboard') }}" class="sidebar-link {{ request()->routeIs('compliance.dashboard', 'home') ? 'active' : '' }}"><i class="bi bi-speedometer2"></i><span>Overview</span></a>
                     <a href="{{ route('compliance.calendar.index') }}" class="sidebar-link {{ request()->routeIs('compliance.calendar.*') ? 'active' : '' }}"><i class="bi bi-calendar3"></i><span>Calendar</span></a>
                     <a href="{{ route('compliance.tasks.index') }}" class="sidebar-link {{ request()->routeIs('compliance.tasks.*') ? 'active' : '' }}"><i class="bi bi-check2-square"></i><span>My tasks</span></a>
-                    <a href="{{ route('compliance.reports.index') }}" class="sidebar-link {{ request()->routeIs('compliance.reports.*') ? 'active' : '' }}"><i class="bi bi-bar-chart-line"></i><span>Reports</span></a>
+                    @if($canManageWorkspace)
+                        <a href="{{ route('compliance.reports.index') }}" class="sidebar-link {{ request()->routeIs('compliance.reports.*') ? 'active' : '' }}"><i class="bi bi-bar-chart-line"></i><span>Reports</span></a>
+                    @endif
                 </nav>
 
+                @if($canManageWorkspace)
                 <div class="accordion sidebar-accordion mt-3" id="sidebarNavigation">
                     <div class="accordion-item">
                         <h2 class="accordion-header">
@@ -65,6 +69,7 @@
                         <div id="adminNav" class="sidebar-panel" data-sidebar-panel @if(! $adminOpen) hidden @endif>
                             <div class="accordion-body">
                                 <a href="{{ route('compliance.organizations.index') }}" class="sidebar-sublink {{ request()->routeIs('compliance.organizations.*') ? 'active' : '' }}"><i class="bi bi-buildings"></i>Organisations</a>
+                                <a href="{{ route('compliance.users.index') }}" class="sidebar-sublink {{ request()->routeIs('compliance.users.*') ? 'active' : '' }}"><i class="bi bi-people"></i>Users</a>
                                 @if(auth()->user()?->isAdmin())
                                     <a href="{{ route('compliance.catalogue.index') }}" class="sidebar-sublink {{ request()->routeIs('compliance.catalogue.*') ? 'active' : '' }}"><i class="bi bi-collection"></i>Catalogue</a>
                                     <a href="{{ route('admin.dashboard') }}" class="sidebar-sublink {{ request()->routeIs('admin.*') ? 'active' : '' }}"><i class="bi bi-sliders"></i>Admin</a>
@@ -73,6 +78,7 @@
                         </div>
                     </div>
                 </div>
+                @endif
 
                 <div class="sidebar-reference mt-auto">
                     <div class="sidebar-section mb-2">Reference</div>

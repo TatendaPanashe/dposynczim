@@ -7,6 +7,7 @@
 
 <section class="grid gap-6 xl:grid-cols-[1fr_0.7fr]">
     <div class="surface p-5">
+        @if($canManageWorkspace)
         <form method="POST" action="{{ route('compliance.calendar.update', $obligation) }}" class="grid gap-4">
             @csrf @method('PUT')
             <div class="grid gap-3 sm:grid-cols-3">
@@ -18,6 +19,16 @@
             <textarea name="notes" rows="4" class="form-control">{{ old('notes', $obligation->notes) }}</textarea>
             <button class="button-primary">Save changes</button>
         </form>
+        @else
+            <div class="grid gap-3 sm:grid-cols-3">
+                <div class="border border-slate-200 bg-blue-50 p-4"><p class="text-xs font-bold uppercase tracking-wide text-slate-500">Status</p><p class="mt-2 font-bold">{{ str($obligation->status)->headline() }}</p></div>
+                <div class="border border-slate-200 bg-blue-50 p-4"><p class="text-xs font-bold uppercase tracking-wide text-slate-500">Owner</p><p class="mt-2 font-bold">{{ $obligation->assignedUser?->name ?? 'Unassigned' }}</p></div>
+                <div class="border border-slate-200 bg-blue-50 p-4"><p class="text-xs font-bold uppercase tracking-wide text-slate-500">Reviewer</p><p class="mt-2 font-bold">{{ $obligation->reviewer?->name ?? 'Not set' }}</p></div>
+            </div>
+            @if($obligation->notes)
+                <div class="mt-4 border border-slate-200 p-4 text-sm leading-6 text-slate-600">{{ $obligation->notes }}</div>
+            @endif
+        @endif
 
         <form method="POST" action="{{ route('compliance.calendar.checklist', $obligation) }}" class="mt-6 border-t border-slate-200 pt-5">
             @csrf

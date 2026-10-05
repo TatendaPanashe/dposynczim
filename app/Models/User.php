@@ -35,6 +35,43 @@ class User extends Authenticatable
         return $this->belongsToMany(Organization::class)->withPivot('role')->withTimestamps();
     }
 
+    public function roleFor(?Organization $organization): ?string
+    {
+        if ($organization === null) {
+            return null;
+        }
+
+        $membership = $this->organizations()
+            ->whereKey($organization->getKey())
+            ->first();
+
+        return $membership?->pivot?->role
+            ?? ($this->organization_id === $organization->getKey() ? 'dpo' : null);
+    }
+
+    public function roleForActiveOrganization(): ?string
+    {
+        return $this->roleFor($this->activeOrganization());
+    }
+
+    public function canManageComplianceWorkspace(): bool
+    {
+        if ($this->isAdmin()) {
+            return true;
+        }
+
+        if ($this->activeOrganization() === null) {
+            return ! $this->organizations()->exists();
+        }
+
+        return in_array($this->roleForActiveOrganization(), ['dpo', 'compliance_officer'], true);
+    }
+
+    public function isTaskUser(): bool
+    {
+        return ! $this->canManageComplianceWorkspace();
+    }
+
     public function activeOrganization(): ?Organization
     {
         if ($this->isAdmin() && session('active_organization_id') === null) {
@@ -83,7 +120,8 @@ class User extends Authenticatable
 
     public function needsDpoProfileSetup(): bool
     {
-        return ! $this->hasCompletedDpoProfile()
+        return $this->canManageComplianceWorkspace()
+            && ! $this->hasCompletedDpoProfile()
             && ! $this->hasAppointedDpoForActiveOrganization();
     }
 

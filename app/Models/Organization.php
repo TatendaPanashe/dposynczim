@@ -24,6 +24,11 @@ class Organization extends Model
         return $this->belongsToMany(User::class)->withPivot('role')->withTimestamps();
     }
 
+    public function members(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class)->withPivot('role')->withTimestamps();
+    }
+
     public function dp1s(): HasMany
     {
         return $this->hasMany(FormDp1::class);
