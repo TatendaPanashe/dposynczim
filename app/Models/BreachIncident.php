@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\ResilientEncrypted;
 use App\Models\Concerns\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -19,9 +20,9 @@ class BreachIncident extends Model
     protected function casts(): array
     {
         return [
-            'description' => 'encrypted',
-            'affected_data_subjects' => 'encrypted:array',
-            'lessons_learned' => 'encrypted',
+            'description' => ResilientEncrypted::class,
+            'affected_data_subjects' => ResilientEncrypted::class.':array',
+            'lessons_learned' => ResilientEncrypted::class,
             'occurred_at' => 'datetime',
             'detected_at' => 'datetime',
             'sla_due_at' => 'datetime',

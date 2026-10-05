@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\ResilientEncrypted;
 use App\Models\Concerns\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -22,12 +23,12 @@ class FormDp2 extends Model
     protected function casts(): array
     {
         return [
-            'qualifications' => 'encrypted:array',
-            'controller_physical_address' => 'encrypted',
-            'controller_postal_address' => 'encrypted',
-            'business_scope' => 'encrypted',
-            'dpo_address' => 'encrypted',
-            'appointment_declaration' => 'encrypted',
+            'qualifications' => ResilientEncrypted::class.':array',
+            'controller_physical_address' => ResilientEncrypted::class,
+            'controller_postal_address' => ResilientEncrypted::class,
+            'business_scope' => ResilientEncrypted::class,
+            'dpo_address' => ResilientEncrypted::class,
+            'appointment_declaration' => ResilientEncrypted::class,
             'appointed_at' => 'date',
         ];
     }

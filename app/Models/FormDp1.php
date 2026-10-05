@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\ResilientEncrypted;
 use App\Models\Concerns\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -20,12 +21,12 @@ class FormDp1 extends Model
     protected function casts(): array
     {
         return [
-            'entity_profile' => 'encrypted:array',
-            'processing_details' => 'encrypted:array',
-            'sensitive_data_details' => 'encrypted:array',
-            'processors' => 'encrypted:array',
-            'cross_border_transfers' => 'encrypted:array',
-            'security_measures' => 'encrypted:array',
+            'entity_profile' => ResilientEncrypted::class.':array',
+            'processing_details' => ResilientEncrypted::class.':array',
+            'sensitive_data_details' => ResilientEncrypted::class.':array',
+            'processors' => ResilientEncrypted::class.':array',
+            'cross_border_transfers' => ResilientEncrypted::class.':array',
+            'security_measures' => ResilientEncrypted::class.':array',
             'attachments' => 'array',
             'submitted_at' => 'datetime',
             'renewal_due_at' => 'date',

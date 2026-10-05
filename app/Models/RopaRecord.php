@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Casts\ResilientEncrypted;
 use App\Models\Concerns\BelongsToOrganization;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Model;
@@ -25,11 +26,11 @@ class RopaRecord extends Model
     protected function casts(): array
     {
         return [
-            'data_subject_categories' => 'encrypted:array',
-            'personal_data_categories' => 'encrypted:array',
-            'recipients' => 'encrypted:array',
-            'security_measures' => 'encrypted:array',
-            'cross_border_transfer' => 'encrypted:array',
+            'data_subject_categories' => ResilientEncrypted::class.':array',
+            'personal_data_categories' => ResilientEncrypted::class.':array',
+            'recipients' => ResilientEncrypted::class.':array',
+            'security_measures' => ResilientEncrypted::class.':array',
+            'cross_border_transfer' => ResilientEncrypted::class.':array',
             'action_due_date' => 'date',
             'reviewed_at' => 'date',
         ];
